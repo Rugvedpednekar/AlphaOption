@@ -2,7 +2,7 @@
 
 ## Scope and safety posture
 
-AlphaOption is paper-only during its early phases. Live order placement must remain disabled, live option selling is out of scope, and no real account connection or credential is required for repository setup. Security issues involving credentials, order routing, risk controls, or data exposure are high priority.
+AlphaOption is paper-only through Phases 0–10. Live order placement must remain disabled, live option selling is out of scope, and no real account connection or credential is required for repository setup. Phase 11 is a separately reviewed decision gate, not automatic authorization. Security issues involving credentials, order routing, risk controls, or data exposure are high priority.
 
 ## Credential handling
 
@@ -31,7 +31,8 @@ Structured logging must denylist/redact authorization headers, API keys, passwor
 
 - Default to `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false`; fail closed on missing or invalid configuration.
 - Use separate paper and future live broker adapters. Early SmartAPI integration may call market-data/session APIs but must not expose an order-placement path.
-- Any future live adapter requires explicit build/runtime gates, restricted order permissions, clear UI banners, account-level risk approval, idempotency, audit events, kill switches, and independent review.
+- Any Phase 11 live adapter requires independent isolation plus explicit build, runtime, account, network, and release gates; restricted order permissions; clear UI banners; account-level risk approval; idempotency; reconciliation; audit events; kill switches; and independent review.
+- Changing one environment variable, deploying to AWS, completing a profitable paper period, or merely possessing credentials must never activate live trading.
 - Never infer live permission from the presence of credentials. Never silently fall back from paper to live.
 - Test that live order calls are unreachable/denied in paper, backtest, replay, CI, and developer environments.
 

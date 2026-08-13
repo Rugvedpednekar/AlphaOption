@@ -8,6 +8,9 @@
 *access_token*
 *refresh_token*
 *feed_token*
+*.token
+tokens/
+*totp*
 *totp*secret*
 *.pem
 *.key
@@ -59,6 +62,7 @@ pgdata/
 *.db
 
 # Downloaded market datasets and generated artifacts
+data/
 data/raw/
 data/interim/
 data/processed/
@@ -68,6 +72,8 @@ artifacts/models/
 models/
 checkpoints/
 artifacts/reports/
+results/
+research/reports/
 backtest-results/
 backtest_results/
 exports/
@@ -75,3 +81,5 @@ exports/
 *.feather
 *.joblib
 *.pkl
+*.onnx
+*.h5

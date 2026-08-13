@@ -1,102 +1,159 @@
 # AlphaOption Implementation Plan
 
-Each phase retains the safety invariant `ENABLE_LIVE_ORDERS=false` until Phase 10 explicitly reviews—but does not automatically enable—live execution.
+This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are intentionally conservative: **Phase 0 is in progress; Phases 1–11 are pending.** Live orders remain disabled unless Phase 11 is separately reviewed and explicitly approved.
 
-## Phase 0: Repository and documentation foundation
+## Phase 0: Repository foundation
 
-- **Objectives:** Establish scope, architecture, delivery sequence, security policy, and safe defaults.
-- **Deliverables:** Blueprint, implementation plan, progress log, README, `.gitignore`, `.env.example`, and security policy.
-- **Tests:** Markdown/repository checks, consistency review, secret-pattern scan, Git diff inspection.
-- **Acceptance criteria:** Requested files are versioned; no credentials or application scaffolding; paper mode and disabled live orders are explicit.
-- **Dependencies:** Initialized Git repository and agreed product constraints.
-- **Known risks:** Documentation drift and ambiguous future live-trading language.
+**Status:** In progress
 
-## Phase 1: Local backend/frontend skeleton
+- **Objective:** Establish project governance, scope, safety defaults, architecture, and a reproducible delivery plan without application code.
+- **Deliverables:** `PROJECT_BLUEPRINT.md`, this plan, `PROJECT_UPDATE.md`, `README.md`, `.gitignore`, `.env.example`, and `SECURITY.md`.
+- **Detailed tasks:** Align all documents with the blueprint; document Phases 0–11; define paper-only defaults; exclude secrets, datasets, and generated artifacts; review encoding and terminology.
+- **Tests and verification:** Read all documentation; check required headings and phase fields; run `git diff --check`; scan for high-confidence secret patterns and sensitive filenames; inspect Git status and diff summary.
+- **Acceptance criteria:** All Phase 0 files are committed on `main`; documentation is internally consistent and readable as UTF-8; no application scaffolding, credentials, or live-order capability exists.
+- **Dependencies:** Initialized Git repository and approved blueprint.
+- **Risks:** Documentation drift, accidental secret inclusion, unclear paper/live boundaries, platform-specific text encoding.
+- **Completion checklist:** [x] Blueprint established; [x] supporting files drafted; [ ] final checks complete; [ ] Phase 0 commit pushed; [ ] progress log updated to completed.
 
-- **Objectives:** Create runnable local service boundaries and developer workflow.
-- **Deliverables:** FastAPI and Next.js/TypeScript skeletons, PostgreSQL/SQLAlchemy/Alembic setup, Docker Compose, configuration validation, health endpoints, Pytest/Playwright harnesses.
-- **Tests:** Lint, type checks, unit smoke tests, migration round trip, frontend build, local health checks.
-- **Acceptance criteria:** One command starts local services; paper mode is visibly default; live-order gate is false and asserted.
+## Phase 1: Local application skeleton
+
+**Status:** Pending
+
+- **Objective:** Create a reliable Windows-compatible local development foundation.
+- **Deliverables:** FastAPI service, Next.js/TypeScript dashboard shell, PostgreSQL, SQLAlchemy/Alembic, Docker Compose, configuration validation, health endpoints, and test harnesses.
+- **Detailed tasks:** Pin toolchain versions; structure backend/frontend packages; add migrations; configure lint/type/test/build commands; display a prominent paper-trading banner; enforce startup failure for unsafe configuration.
+- **Tests and verification:** Backend and frontend smoke tests, migration upgrade/downgrade, container health checks, strict type checks, lint, and assertion that live-order execution is unavailable.
+- **Acceptance criteria:** One documented local workflow starts healthy services; paper mode is the default; no strategy, broker authentication, or order code exists.
 - **Dependencies:** Phase 0.
-- **Known risks:** Toolchain/version mismatch, platform-specific setup, insecure defaults.
+- **Risks:** Windows/Docker differences, dependency incompatibility, insecure configuration defaults.
+- **Completion checklist:** [ ] Services scaffolded; [ ] database initialized; [ ] checks automated; [ ] paper banner visible; [ ] documentation updated.
 
-## Phase 2: Historical data ingestion
+## Phase 2: Historical ingestion
 
-- **Objectives:** Build reliable, point-in-time market/reference data ingestion.
-- **Deliverables:** Canonical schemas, file/SmartAPI historical adapters, validators, idempotent jobs, provenance manifests, gap reports.
-- **Tests:** Schema/contract tests, duplicate and timezone cases, idempotency, rate-limit/error fixtures.
-- **Acceptance criteria:** A bounded sample imports reproducibly with lineage and documented quality results.
-- **Dependencies:** Phase 1; legitimate data access and retention terms.
-- **Known risks:** Missing option quotes, changing instrument tokens, rate limits, licensing constraints.
+**Status:** Pending
 
-## Phase 3: Feature and label pipeline
+- **Objective:** Produce validated, point-in-time historical spot, futures, option, and reference datasets.
+- **Deliverables:** Canonical schemas, ingestion adapters, effective-dated instrument snapshots, market calendar, validators, provenance manifests, and data-quality reports.
+- **Detailed tasks:** Define timestamps and identifiers; implement idempotent imports; detect gaps, duplicates, invalid quotes, and out-of-order events; document data licensing and retention.
+- **Tests and verification:** Schema/contract tests, timezone and expiry cases, duplicate/idempotency tests, corrupt-input fixtures, and reproducible sample import.
+- **Acceptance criteria:** A bounded licensed sample imports deterministically with lineage and explicit quality status.
+- **Dependencies:** Phase 1 and lawful data access.
+- **Risks:** Missing bid/ask history, token changes, incomplete contract metadata, rate limits, and licensing restrictions.
+- **Completion checklist:** [ ] Schemas approved; [ ] sample ingested; [ ] validators pass; [ ] lineage recorded; [ ] limitations documented.
 
-- **Objectives:** Generate point-in-time features and executable cost-aware three-class labels.
-- **Deliverables:** Versioned feature/label definitions, dataset builder, data manifests, no-lookahead guards.
-- **Tests:** Boundary/timestamp unit tests, missing-data cases, deterministic rebuilds, leakage assertions.
-- **Acceptance criteria:** Identical inputs/config produce identical dataset hashes; every column has availability/lineage metadata.
-- **Dependencies:** Phase 2 and agreed horizons/cost policy.
-- **Known risks:** Subtle leakage, survivorship bias, sparse contracts, label instability.
+## Phase 3: Features and labels
 
-## Phase 4: Baseline models and leakage-safe validation
+**Status:** Pending
 
-- **Objectives:** Establish honest baselines and chronological model evaluation.
-- **Deliverables:** Rules/logistic/tree baselines, purged walk-forward splitter with embargo, calibration, experiment registry, untouched holdout policy.
-- **Tests:** Split-overlap tests, reproducibility, training-only preprocessing, metric and calibration checks.
-- **Acceptance criteria:** `CALL`/`PUT`/`NO_TRADE` results beat or contextualize baselines across multiple out-of-sample folds without shuffled CV.
+- **Objective:** Build versioned, point-in-time features and economically meaningful labels.
+- **Deliverables:** Feature registry, label definitions, dataset builder, manifests/hashes, missing-data policy, and leakage guards.
+- **Detailed tasks:** Implement underlying, option-chain, time, and regime features; define neutral-zone/triple-barrier/direct-option-return labels; record horizons, execution delay, and costs.
+- **Tests and verification:** Timestamp boundary tests, same-bar execution safeguards, train-only transformation tests, deterministic rebuilds, and no-lookahead assertions.
+- **Acceptance criteria:** Identical input/configuration produces identical datasets; every feature and label has availability and lineage metadata.
+- **Dependencies:** Phase 2 and agreed cost/horizon policies.
+- **Risks:** Look-ahead leakage, sparse contracts, survivorship bias, revised data, unstable labels.
+- **Completion checklist:** [ ] Features versioned; [ ] labels versioned; [ ] leakage tests pass; [ ] dataset hash stable; [ ] limitations recorded.
+
+## Phase 4: Baseline modeling
+
+**Status:** Pending
+
+- **Objective:** Evaluate `CALL`, `PUT`, and `NO_TRADE` decisions honestly against credible baselines.
+- **Deliverables:** No-trade/random/rule/logistic/tree baselines, purged walk-forward splitter with embargo, calibration pipeline, experiment registry, and untouched holdout policy.
+- **Detailed tasks:** Fit preprocessing inside folds; compare balanced classification and economic metrics; tune thresholds on validation periods only; record every experiment.
+- **Tests and verification:** Split-overlap and embargo tests, repeatability checks, training-only preprocessing assertions, metric fixtures, and calibration checks.
+- **Acceptance criteria:** Results are reported across chronological folds and costs, with no shuffled cross-validation and no final-holdout tuning.
 - **Dependencies:** Phase 3.
-- **Known risks:** Overfitting, regime dependence, class imbalance, threshold mining.
+- **Risks:** Overfitting, multiple testing, class imbalance, regime dependence, and misleading accuracy.
+- **Completion checklist:** [ ] Baselines run; [ ] walk-forward verified; [ ] calibration assessed; [ ] holdout preserved; [ ] results documented.
 
-## Phase 5: Event-driven options backtester
+## Phase 5: Options backtester
 
-- **Objectives:** Evaluate strategies with real option observations and realistic execution.
-- **Deliverables:** Event clock, shared strategy/risk interfaces, portfolio ledger, paper fills, spread/brokerage/tax/latency/slippage models, reports.
-- **Tests:** Event ordering, accounting invariants, rejected trades, fee/slippage fixtures, deterministic scenarios.
-- **Acceptance criteria:** Results reconcile from event log to P&L and disclose all assumptions; Black–Scholes data is not used as market-equivalent evidence.
-- **Dependencies:** Phases 2–4 and adequate historical option quotes/prices.
-- **Known risks:** Optimistic fills, stale quotes, incomplete charges, corporate/exchange-rule changes.
+**Status:** Pending
 
-## Phase 6: Dashboard and reporting
+- **Objective:** Simulate the full event sequence using tradeable option observations and realistic friction.
+- **Deliverables:** Event clock, shared strategy/risk interfaces, contract selector, simulated broker, portfolio ledger, cost/fill models, and reproducible reports.
+- **Detailed tasks:** Process events chronologically; buy at ask/sell at bid by default; apply latency, brokerage, taxes, slippage, quote freshness, partial/non-fill logic, and intraday exits.
+- **Tests and verification:** Event-ordering tests, accounting invariants, fee fixtures, stale/missing quote cases, deterministic scenarios, and report-to-ledger reconciliation.
+- **Acceptance criteria:** Every decision and P&L amount is traceable; final evaluation uses real option prices/quotes; Black–Scholes synthetic prices are never described as historical evidence.
+- **Dependencies:** Phases 2–4 and adequate historical option observations.
+- **Risks:** Optimistic fills, incomplete charges, stale quotes, and effective-date errors.
+- **Completion checklist:** [ ] Event engine complete; [ ] risk integrated; [ ] costs effective-dated; [ ] accounting reconciled; [ ] assumptions disclosed.
 
-- **Objectives:** Make decisions, risk outcomes, performance, and health observable.
-- **Deliverables:** API/read models and dashboard views for signals, rejection reasons, trades, P&L, drawdown, connection health, and redacted logs.
-- **Tests:** API schemas, component/accessibility tests, Playwright workflows, large/empty/error states.
-- **Acceptance criteria:** A user can trace any simulated trade or rejection and reconcile headline metrics.
+## Phase 6: Dashboard
+
+**Status:** Pending
+
+- **Objective:** Provide trustworthy research, risk, and operational visibility.
+- **Deliverables:** Overview, strategy, backtest, replay, trades, system, and safe-settings pages plus supporting APIs/event streams.
+- **Detailed tasks:** Show signals/probabilities, rejected reasons, trades, positions, P&L, drawdown, health, freshness, versions, logs, reports, and a permanent paper-only banner.
+- **Tests and verification:** API schema tests, component/accessibility checks, empty/error/loading states, Playwright workflows, and sensitive-data display tests.
+- **Acceptance criteria:** Users can trace every simulated trade/rejection and reconcile dashboard metrics without exposure of secrets.
 - **Dependencies:** Phases 1 and 5.
-- **Known risks:** Misleading aggregates, sensitive logs, slow queries, unclear mode labeling.
+- **Risks:** Misleading aggregates, slow queries, inaccessible visuals, log leakage, ambiguous mode labels.
+- **Completion checklist:** [ ] Required views built; [ ] metrics reconcile; [ ] banner verified; [ ] accessibility checked; [ ] redaction verified.
 
-## Phase 7: Historical market replay
+## Phase 7: Market replay
 
-- **Objectives:** Exercise production-compatible behavior against accelerated historical events.
-- **Deliverables:** Replay clock/controller, pause/resume/step/reset, speed controls, deterministic session records.
-- **Tests:** Ordering and no-future-access tests, speed independence, restart/replay determinism, UI controls.
-- **Acceptance criteria:** Replay produces the same decisions/accounting as equivalent backtest inputs within documented semantics.
+**Status:** Pending
+
+- **Objective:** Exercise production-compatible paths against accelerated deterministic history.
+- **Deliverables:** Replay session controller, chronological event stream, 1x/5x/20x/100x speeds, pause/resume/stop, recovery, and persisted session state.
+- **Detailed tasks:** Share feature/strategy/risk/accounting/dashboard paths with paper mode; simulate session boundaries and square-off; support deterministic seeds and restart tests.
+- **Tests and verification:** Ordering/no-future-access tests, speed independence, pause/resume/stop behavior, restart recovery, and equivalence with backtest semantics.
+- **Acceptance criteria:** Repeating a session/configuration/seed produces the same decisions and ledger; future events are inaccessible.
 - **Dependencies:** Phases 5–6.
-- **Known risks:** Clock races, nondeterministic async processing, event backpressure.
+- **Risks:** Async races, backpressure, nondeterminism, clock leakage.
+- **Completion checklist:** [ ] Controls complete; [ ] ordering verified; [ ] deterministic rerun verified; [ ] restart tested; [ ] UI integrated.
 
-## Phase 8: SmartAPI live market data and paper broker
+## Phase 8: SmartAPI paper mode
 
-- **Objectives:** Consume live data safely while simulating every order.
-- **Deliverables:** Authentication/session and streaming data adapters, reconnect/heartbeat handling, quote freshness policy, paper broker, end-of-day reconciliation.
-- **Tests:** Mocked authentication, disconnect/reconnect, stale/out-of-order data, market-hours and live-order prohibition tests.
-- **Acceptance criteria:** Complete paper sessions run during Indian market hours without any live order API call; health and logs are visible.
-- **Dependencies:** Phases 5–7, SmartAPI access, secure local secret setup.
-- **Known risks:** API changes, network loss, clock skew, token expiry, inadvertent order endpoint use.
+**Status:** Pending
 
-## Phase 9: Extended paper-trading evaluation
+- **Objective:** Consume live SmartAPI market data while ensuring every execution remains simulated.
+- **Deliverables:** Secure authentication/session handling, live feed adapter, bounded strike subscriptions, health/reconnect logic, paper broker, and end-of-day reconciliation.
+- **Detailed tasks:** Load secrets outside Git; handle token expiry, stale/out-of-order quotes and subscription changes; simulate bid/ask fills; persist identical order/fill events; operate through Indian market hours.
+- **Tests and verification:** Mocked authentication, disconnect/reconnect, rate-limit, stale-data, market-hours, restart, reconciliation, and order-endpoint-denial tests.
+- **Acceptance criteria:** Complete paper sessions run without any live order API call; connection health and all simulated activity are observable.
+- **Dependencies:** Phases 5–7, SmartAPI access, and secure local secret setup.
+- **Risks:** API/feed changes, network loss, token expiry, clock skew, accidental endpoint exposure.
+- **Completion checklist:** [ ] Live feed stable; [ ] paper fills verified; [ ] reconnect tested; [ ] reconciliation passes; [ ] real orders proven unreachable.
 
-- **Objectives:** Measure robustness across regimes and validate operations over an extended period.
-- **Deliverables:** Evaluation protocol, daily reports, drift/reliability metrics, incident log, go/no-go evidence package.
-- **Tests:** Long-run soak, recovery, data completeness, ledger reconciliation, alert and kill-switch drills.
-- **Acceptance criteria:** Predetermined sample duration and reliability/risk thresholds are met with no unresolved critical incidents; otherwise remain in paper mode.
-- **Dependencies:** Phase 8 and sustained market sessions.
-- **Known risks:** Insufficient sample, regime shifts, operational gaps, selection bias.
+## Phase 9: Extended paper evaluation
 
-## Phase 10: AWS preparation and gated live execution
+**Status:** Pending
 
-- **Objectives:** Prepare secure deployment and separately assess whether tightly gated live buying can ever be authorized.
-- **Deliverables:** AWS architecture, static outbound IP for SmartAPI order APIs, IAM/secrets/monitoring/backups, deployment/rollback runbooks, independent live-adapter review and layered gates.
-- **Tests:** Infrastructure policy/security checks, disaster recovery, paper deployment soak, order-endpoint denial by default, kill-switch drills.
-- **Acceptance criteria:** AWS paper mode is stable; security/risk approvals are documented; live remains disabled unless a separate explicit authorization and release process succeeds.
-- **Dependencies:** Phase 9, compliance/broker review, budget, explicit owner approval.
-- **Known risks:** Financial loss, credential compromise, cloud/network failure, regulatory/broker policy changes, static-egress misconfiguration.
+- **Objective:** Gather multi-regime forward-test evidence and validate long-running operations.
+- **Deliverables:** Evaluation protocol, daily/weekly reports, drift and reliability metrics, incident log, soak results, and go/no-go evidence package.
+- **Detailed tasks:** Run at least 8–12 weeks and 100 completed simulated trades, whichever takes longer; cover expiry/non-expiry, trend/range, volatility, gaps, outages, and restarts.
+- **Tests and verification:** Long-run soak, data completeness, daily ledger reconciliation, recovery drills, alert/circuit-breaker tests, and regime/cost sensitivity analysis.
+- **Acceptance criteria:** Predetermined evidence and reliability thresholds are met with no unresolved critical incidents; otherwise remain in paper mode and extend evaluation.
+- **Dependencies:** Phase 8 and sufficient market sessions.
+- **Risks:** Insufficient sample size, regime shifts, operational gaps, selection bias.
+- **Completion checklist:** [ ] Minimum duration met; [ ] trade count met; [ ] regimes covered; [ ] incidents resolved; [ ] evidence reviewed.
+
+## Phase 10: AWS paper deployment
+
+**Status:** Pending
+
+- **Objective:** Operate the proven system in AWS while remaining paper-only.
+- **Deliverables:** Mumbai-region architecture, private database, encrypted secrets, backups, monitoring/alarms, static outbound IP readiness, deployment/rollback and recovery runbooks.
+- **Detailed tasks:** Implement least-privilege IAM and private networking; deploy container services; centralize redacted logs; validate position-aware restarts; separate read-only views from controls.
+- **Tests and verification:** Infrastructure policy/security checks, backup restore, failover/restart, paper soak, static egress confirmation, and live-order denial.
+- **Acceptance criteria:** AWS paper mode is stable, observable, recoverable, and incapable of placing live orders.
+- **Dependencies:** Phase 9, cloud budget, security review, and approved architecture.
+- **Risks:** Cloud cost, secret/network misconfiguration, service failure, false confidence from deployment.
+- **Completion checklist:** [ ] Infrastructure reviewed; [ ] backups restored; [ ] monitoring tested; [ ] paper soak complete; [ ] live orders remain disabled.
+
+## Phase 11: Gated live option buying
+
+**Status:** Pending
+
+- **Objective:** Separately determine whether minimal-exposure live option buying can be authorized; this phase does not presume approval.
+- **Deliverables:** Independent live adapter, broker reconciliation, layered build/runtime/account gates, static-IP order access, release-specific approval record, kill switches, and live incident runbook.
+- **Detailed tasks:** Reconfirm broker/exchange/regulatory requirements; review Phase 9–10 evidence; restrict permissions and exposure; require manual release/account approval; prohibit naked selling and one-variable activation.
+- **Tests and verification:** Independent security/risk review, sandbox/mock order-state tests, duplicate/idempotency tests, disconnect/reconciliation drills, kill-switch tests, and default-deny order endpoint tests.
+- **Acceptance criteria:** Every blueprint gate is evidenced and explicitly approved for a specific release/account; absent approval, the platform remains paper-only. Option selling requires a separate project review.
+- **Dependencies:** Successful Phases 0–10, current compliance review, explicit owner authorization, and broker approval.
+- **Risks:** Financial loss, regulatory change, credential compromise, reconciliation failure, latency/network failure, tail risk.
+- **Completion checklist:** [ ] Evidence independently reviewed; [ ] requirements current; [ ] layered gates verified; [ ] emergency controls drilled; [ ] explicit approval recorded—or [ ] live execution declined.

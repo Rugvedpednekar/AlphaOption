@@ -2,55 +2,69 @@
 
 **Last updated:** 2026-08-13
 
-**Current phase:** Phase 0 — Repository and documentation foundation
+## Project status
+
+Planning and local research. The expanded project architecture is complete, and the remaining Phase 0 documentation foundation is being established. No backend, frontend, SmartAPI integration, model, backtester, or order-execution capability has been implemented.
+
+## Current phase
+
+**Phase 0 — Repository foundation: In progress**
+
+Phases 1–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` are the required safe defaults.
 
 ## Completed work
 
-- Repository initialized and project scope documented.
-- Foundation documentation and safe configuration examples created.
-- Planned directory map recorded without backend/frontend scaffolding.
+- `PROJECT_BLUEPRINT.md` completed with architecture, research methodology, operating modes, safety gates, Phases 0–11, and success criteria.
+- Initial Git repository and `main` branch established.
+- Phase 0 supporting documentation drafted and aligned to the blueprint.
+- Blueprint encoding normalized for reliable Windows and UTF-8 rendering.
 
-No application, broker, model, data-ingestion, backtest, replay, dashboard, or deployment work is marked complete.
+Only the blueprint and repository initialization are considered complete. Phase 0 remains in progress until final verification, commit, push, and this log’s completion state are reconciled.
 
 ## Verification performed
 
-- Documentation consistency review.
-- Repository and Markdown checks available locally.
-- Secret-pattern scan excluding Git internals.
-- Git status, file list, and diff review.
-
-Exact command outcomes are recorded in the associated commit/task report; this living log does not imply future checks have passed.
+- Read `PROJECT_BLUEPRINT.md` completely before supporting-document edits.
+- Compared phase names and boundaries across the blueprint and implementation plan.
+- Reviewed paper/live safety language and configuration defaults.
+- Additional Markdown, secret, Git diff, and repository checks will be recorded only after execution.
 
 ## Current blockers
 
-- None for Phase 0.
-- Later data phases require legitimate historical option quote/price access and confirmation of usage/retention terms.
-- SmartAPI integration will require user-provided credentials stored outside source control; it is not required now.
+- No blocker prevents completion of Phase 0.
+- Phase 2 will require lawful access to historical option prices/quotes and confirmed data retention/licensing terms.
+- Phase 8 will require user-provided SmartAPI credentials stored outside source control; credentials are neither needed nor permitted in Phase 0.
+- Live execution remains blocked by design until all Phase 11 gates and explicit approvals are satisfied.
+
+## Major technical decisions
+
+- Develop and verify locally on Windows/Docker Desktop before AWS.
+- Use ₹20,000 virtual starting capital; simulate all initial trades.
+- Support Nifty 50 option buying only; no naked or live option selling.
+- Begin with backtest, accelerated replay, and live-data paper modes.
+- Use one point-in-time strategy and independent account-level risk engine across modes.
+- Isolate simulated/paper and future live broker adapters.
+- Model `CALL`, `PUT`, and `NO_TRADE`; never force a trade.
+- Use chronological walk-forward validation with purging/embargo; prohibit shuffled cross-validation.
+- Require actual option observations and conservative spreads, costs, latency, and slippage for final economic evaluation.
+- Never present Black–Scholes synthetic premiums as historical option-market evidence.
+- Keep the first AWS deployment paper-only; require a static outbound IP only for future approved SmartAPI order APIs.
 
 ## Next actions
 
-1. Begin Phase 1 local backend/frontend skeleton.
-2. Pin supported toolchain versions and add CI lint/type/test/build gates.
-3. Implement validated configuration with paper mode as the default and hard-disabled live orders.
-4. Define initial PostgreSQL domains and migration workflow.
+1. Finish Phase 0 consistency, secret, Markdown/repository, status, and diff checks.
+2. Commit and push the complete Phase 0 documentation foundation.
+3. Update Phase 0 to completed after all acceptance checks are satisfied.
+4. Begin Phase 1 only after approval: local FastAPI/Next.js/PostgreSQL/Docker Compose skeleton and health checks, with no broker authentication or strategy/order code.
 
-## Major decisions
+## Dated progress history
 
-- Develop and verify locally before AWS deployment.
-- Assume ₹20,000 initial capital; simulate all early trades.
-- Support Nifty 50 option buying only; live option selling is out of scope.
-- Start with backtesting, accelerated replay, and live paper trading.
-- Share strategy and account-level risk engines across modes.
-- Separate paper and future live broker adapters; keep live placement disabled.
-- Use purged/embargoed chronological walk-forward validation, never shuffled CV.
-- Require real option prices/quotes and realistic trading costs for final evaluation.
-- Treat Black–Scholes synthetic data only as synthetic—not historical-market equivalent.
-- Plan AWS and static outbound IP only after extended paper evaluation.
+### 2026-08-13 — Expanded blueprint completed
 
-## Dated update history
+- Completed `PROJECT_BLUEPRINT.md` as the architectural and research source of truth.
+- Defined operating modes, event-driven evaluation, risk controls, dashboard, security, AWS paper deployment, and the separately gated Phase 11 live option-buying review.
+- Corrected Windows-visible encoding corruption while preserving blueprint content.
 
-### 2026-08-13 — Phase 0 foundation
+### 2026-08-13 — Phase 0 documentation in progress
 
-- Inspected the newly cloned repository, current branch, Git status, and repository instructions.
-- Added the project blueprint, phased plan, living update, README, ignore rules, environment template, and security policy.
-- Kept application scaffolding and all live/account connectivity out of scope.
+- Began aligning the implementation plan, progress log, README, ignore rules, safe environment template, and security policy with the completed blueprint.
+- Kept all implementation work and credentials out of scope.

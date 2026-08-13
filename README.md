@@ -1,53 +1,73 @@
 # AlphaOption
 
-AlphaOption is a local-first machine-learning research, backtesting, accelerated market-replay, and paper-trading platform for **Nifty 50 option buying**. It is intended to test whether leakage-safe models and realistic execution assumptions can produce robust option-buying signals. Development and verification happen locally before any AWS deployment.
+AlphaOption is a local-first machine-learning research, backtesting, accelerated market-replay, and paper-trading platform for **Nifty 50 option buying**. It is designed to test a market hypothesis rigorously—not to promise that machine learning can predict markets or guarantee returns.
 
-> [!WARNING]
-> AlphaOption does not place live orders. Early trades are simulated with an initial-capital assumption of **₹20,000**. `ENABLE_LIVE_ORDERS` must remain `false` throughout the current phases.
+> **Safety status:** Live orders are disabled. The current project contains documentation only, uses a ₹20,000 virtual-capital assumption, and must default to `TRADING_MODE=paper` with `ENABLE_LIVE_ORDERS=false`.
 
-## Initial scope
+## Research question
 
-- Instruments: Nifty 50 options; buying only.
-- Decisions: `CALL`, `PUT`, or `NO_TRADE`.
-- Modes: historical backtesting, accelerated market replay, and live paper trading.
-- Market data: historical files initially; Angel One SmartAPI historical/live data later.
-- Shared logic: one strategy and account-level risk engine across every mode.
-- Execution: separate paper broker and future live broker adapters. Live option selling is out of scope.
+Can machine-learning models identify short-horizon Nifty 50 option-buying opportunities that produce persistent out-of-sample returns after bid–ask spreads, brokerage, taxes, slippage, latency, and account risk are included?
 
-## Planned stack
+AlphaOption compares ML with transparent no-trade, momentum, mean-reversion, and statistical baselines. Classification accuracy is insufficient: evidence must remain economically meaningful across leakage-safe chronological walk-forward periods and conservative execution assumptions.
 
-Python 3.12, FastAPI, PostgreSQL, SQLAlchemy, Alembic, Pandas/Polars, scikit-learn, LightGBM/XGBoost, Next.js with TypeScript, Tailwind CSS, Recharts, Docker Compose, Pytest, and Playwright.
+## Operating modes
 
-## Planned directory map
+| Mode | Data | Broker | Purpose | Real orders |
+| --- | --- | --- | --- | --- |
+| Backtest | Historical dataset | Simulated event broker | Research and evaluation | Never |
+| Replay | Historical event stream | Simulated paper broker | Accelerated live-like validation | Never |
+| Paper | Live SmartAPI feed, later | Paper broker | Forward testing | Never |
+| Live | Live SmartAPI feed, future only | Separate future Angel One adapter | Explicitly gated deployment | Disabled initially |
 
-The directories below are architectural intent only; code is deliberately not scaffolded in Phase 0.
+Changing one setting must never be sufficient to enable live trading. The same feature, strategy, independent risk, portfolio, and event contracts are planned across modes, while broker and market-data behavior remain isolated behind adapters.
 
-```text
-AlphaOption/
-├── backend/                 # FastAPI application and shared domain logic
-│   ├── app/{api,domain,services,adapters}/
-│   ├── migrations/
-│   └── tests/
-├── frontend/                # Next.js dashboard
-├── data/{raw,interim,processed}/   # Local, ignored market data
-├── artifacts/{models,reports}/     # Local, ignored outputs
-├── infra/                   # Docker Compose and later AWS definitions
-├── PROJECT_BLUEPRINT.md
-├── implementation_plan.md
-├── PROJECT_UPDATE.md
-├── SECURITY.md
-└── .env.example
-```
+## Planned architecture and stack
 
-## Documentation
+Market data flows into an immutable raw-data layer, point-in-time feature and label pipelines, versioned models and strategy logic, an independent account-level risk engine, broker interfaces, portfolio accounting, FastAPI APIs/event streams, and a Next.js dashboard. PostgreSQL stores traceable research, trading-simulation, and operational records.
 
-- [Project blueprint](PROJECT_BLUEPRINT.md): architecture, research methodology, safety, and reproducibility.
-- [Implementation plan](implementation_plan.md): milestone-by-milestone delivery plan.
-- [Project update](PROJECT_UPDATE.md): current state and dated progress history.
-- [Security policy](SECURITY.md): credential and paper/live isolation requirements.
+Planned technology:
 
-## Getting started
+- Python 3.12, FastAPI, Pydantic, SQLAlchemy, Alembic, PostgreSQL
+- Pandas/Polars, NumPy/SciPy, scikit-learn, LightGBM/XGBoost
+- Next.js with TypeScript, Tailwind CSS, Recharts, accessible UI components
+- Docker Compose, Pytest, Ruff, static typing, ESLint, Playwright, GitHub Actions
+- Later only: AWS in/near India with private networking, managed secrets, monitoring, backups, and static outbound IP readiness
 
-Phase 0 contains documentation only. Copy `.env.example` to `.env` when local services are introduced, keep all values local, and never commit credentials or TOTP secrets. The next milestone is Phase 1: create the local backend/frontend skeleton and automated checks.
+## Current status
 
-This software is for research and engineering evaluation, not financial advice. Simulated performance does not guarantee live results.
+**Phase 0 — Repository foundation is in progress.** The project blueprint is complete, and its supporting documentation, safe defaults, security rules, and roadmap are being established. No backend, frontend, SmartAPI integration, data pipeline, model, backtester, broker, or order-placement code has been implemented.
+
+See:
+
+- [`PROJECT_BLUEPRINT.md`](PROJECT_BLUEPRINT.md) — source-of-truth architecture and research design
+- [`implementation_plan.md`](implementation_plan.md) — Phases 0–11 with gates and checklists
+- [`PROJECT_UPDATE.md`](PROJECT_UPDATE.md) — living status and progress history
+- [`SECURITY.md`](SECURITY.md) — secret handling and paper/live isolation
+
+## Local-development roadmap
+
+1. Repository foundation
+2. Local application skeleton
+3. Historical ingestion
+4. Features and labels
+5. Baseline modeling
+6. Event-driven options backtester
+7. Dashboard
+8. Historical market replay
+9. SmartAPI live-data paper mode
+10. Extended paper evaluation
+11. AWS paper deployment
+12. Separately reviewed, gated live option buying
+
+The target future local command is `docker compose up --build`, but Phase 0 deliberately provides no application scaffolding. The first AWS deployment must remain paper-only.
+
+## Research and execution integrity
+
+- Final option-strategy evaluation uses real historical option prices or quotes where available, with bid/ask spread, brokerage, statutory costs, latency, liquidity, and slippage.
+- Black–Scholes may support theoretical checks, Greeks, or IV inversion from observed prices; synthetic premiums are not historical-market evidence.
+- Validation is chronological walk-forward with purging and embargo. Shuffled cross-validation is prohibited.
+- Every simulated trade requires independent account-level risk approval, and every rejection must be recorded and explainable.
+
+## Safety disclaimer
+
+AlphaOption is an educational and research project, not financial advice. Backtests and paper results do not guarantee future performance. Options can lose value rapidly, including the entire premium paid. Any future live option buying requires independent technical, security, risk, broker, regulatory, and owner approval. Live option selling is outside the approved scope.
