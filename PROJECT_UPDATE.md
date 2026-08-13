@@ -4,11 +4,11 @@
 
 ## Project status
 
-Market-data foundation development. Phases 0 and 1 are complete. Phase 2 is in progress, with Phases 2A and 2B completed locally. A bounded credentialed SmartAPI probe verified selected current-market data capabilities with redacted evidence. Live WebSockets, general genuine-data ingestion, features, ML, backtesting, brokers, trades, and order execution remain absent.
+Market-data foundation development. Phases 0 and 1 are complete. Phase 2 is in progress, with Phase 2A complete and Phase 2B repair under review. The initial probe verified authentication and general read-only data operations, but Nifty-specific derivative claims were withdrawn pending a separately authorized probe of the repaired selector.
 
 ## Current phase
 
-**Phase 2 — Historical ingestion: In progress (Phases 2A and 2B completed)**
+**Phase 2 — Historical ingestion: In progress (Phase 2A complete; Phase 2B repair in progress)**
 
 Phases 0 and 1 are completed; Phase 2 is in progress; Phases 3–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` remain enforced safe defaults.
 
@@ -107,6 +107,8 @@ Phases 0 and 1 are completed; Phase 2 is in progress; Phases 3–11 are pending.
 2. Resolve provider/exchange licensing, retention, and redistribution questions before acquiring a genuine dataset.
 3. Do not begin Phase 2C, WebSockets, features, ML, backtesting, or trading capability without separate approval.
 
+The repair made zero provider requests, did not modify ignored credentials or evidence, and did not start Phase 2C.
+
 ## Dated progress history
 
 ### 2026-08-13 — Expanded blueprint completed
@@ -152,3 +154,9 @@ Phases 0 and 1 are completed; Phase 2 is in progress; Phases 3–11 are pending.
 - Completed one authenticated, sequential, read-only 14-request probe and verified session termination with no orders or restricted account operations.
 - Verified current Nifty role discovery, bounded spot/future/CE/PE candles with OHLC and volume, live-contract historical OI, and current FULL snapshot/depth field categories.
 - Kept expired contracts and historical bid/ask not-testable, passed evidence leakage scans, and restored SmartAPI to disabled.
+
+### 2026-08-13 — Phase 2B review repair
+
+- Found that pinned SDK `generateSession()` internally retrieved profile data and that the original selector admitted other NIFTY-family products.
+- Replaced the helper with a guarded login-only SDK path and restricted selection to exact Nifty 50/NIFTY identities with expiry alignment.
+- Downgraded Nifty-specific claims because generic-role evidence cannot retroactively prove derivative identity. No provider request was made; a new probe requires separate authorization.

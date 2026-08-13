@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
@@ -8,6 +9,8 @@ from app.smartapi.redaction import safe_provider_code
 from app.smartapi.types import CapabilityResult, ProbeInstrument, ProbeReport
 
 INTERVALS = ("ONE_MINUTE", "FIVE_MINUTE")
+NIFTY_50_SPOT_TOKEN = "99926000"
+NIFTY_DERIVATIVE_SYMBOL = re.compile(r"^NIFTY\d")
 
 
 def _parse_expiry(value: object) -> date | None:
@@ -27,21 +30,35 @@ def select_instruments(rows: list[dict[str, Any]], today: date) -> tuple[ProbeIn
         symbol = str(row.get("symbol", ""))
         name = str(row.get("name", ""))
         kind = str(row.get("instrumenttype", "")).upper()
-        if "NIFTY" not in f"{name} {symbol}".upper() or "BANKNIFTY" in symbol.upper():
-            continue
+        normalized_name = " ".join(name.upper().split())
+        normalized_symbol = "".join(symbol.upper().split())
         expiry = _parse_expiry(row.get("expiry"))
-        token = str(row.get("token", ""))
-        if not token:
+        token = str(row.get("token") or "").strip()
+        if not token.isdigit():
             continue
         role = ""
-        if exchange == "NSE" and (kind in {"AMXIDX", "INDEX"} or token == "99926000"):
+        if (
+            exchange == "NSE"
+            and token == NIFTY_50_SPOT_TOKEN
+            and kind in {"AMXIDX", "INDEX"}
+            and normalized_name == "NIFTY"
+            and normalized_symbol in {"NIFTY50", "NIFTY"}
+        ):
             role = "nifty-spot"
-        elif exchange == "NFO" and expiry and expiry >= today and kind == "FUTIDX":
+        elif not (
+            exchange == "NFO"
+            and normalized_name == "NIFTY"
+            and NIFTY_DERIVATIVE_SYMBOL.match(normalized_symbol)
+            and expiry
+            and expiry >= today
+        ):
+            continue
+        elif kind == "FUTIDX" and normalized_symbol.endswith("FUT"):
             role = "nearest-active-future"
-        elif exchange == "NFO" and expiry and expiry >= today and kind == "OPTIDX":
-            if symbol.upper().endswith("CE"):
+        elif kind == "OPTIDX":
+            if normalized_symbol.endswith("CE"):
                 role = "representative-active-ce"
-            elif symbol.upper().endswith("PE"):
+            elif normalized_symbol.endswith("PE"):
                 role = "representative-active-pe"
         if role:
             raw_strike = row.get("strike")
@@ -75,7 +92,8 @@ def select_instruments(rows: list[dict[str, Any]], today: date) -> tuple[ProbeIn
         if role.startswith("representative"):
             future = next((item for item in selected if item.role == "nearest-active-future"), None)
             same_expiry = [item for item in role_items if future and item.expiry == future.expiry]
-            selected.append((same_expiry or role_items)[len(same_expiry or role_items) // 2])
+            if same_expiry:
+                selected.append(same_expiry[len(same_expiry) // 2])
         else:
             selected.append(role_items[0])
     return tuple(selected)

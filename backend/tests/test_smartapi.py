@@ -19,6 +19,7 @@ FAKE_VALUES = {
     "jwt": "fake-jwt-token-value",
     "refresh": "fake-refresh-token-value",
     "feed": "fake-feed-token-value",
+    "account": "fake-account-identifier",
 }
 
 
@@ -37,20 +38,39 @@ def settings(**overrides):
 
 
 class FakeSdk:
-    def __init__(self, fail_candles: bool = False) -> None:
+    _routes = {"api.login": "/rest/auth/angelbroking/user/v1/loginByPassword"}
+
+    def __init__(self, fail_candles: bool = False, fail_login: bool = False) -> None:
         self.calls: list[str] = []
         self.fail_candles = fail_candles
+        self.fail_login = fail_login
+        self.tokens: dict[str, str] = {}
 
-    def generateSession(self, client_code, pin, totp):
+    def _postRequest(self, route, params):
         self.calls.append("authenticate")
+        if self.fail_login:
+            raise RuntimeError(f"login failed {FAKE_VALUES['client_code']} {FAKE_VALUES['jwt']}")
         return {
             "status": True,
             "data": {
                 "jwtToken": FAKE_VALUES["jwt"],
                 "refreshToken": FAKE_VALUES["refresh"],
                 "feedToken": FAKE_VALUES["feed"],
+                "clientcode": FAKE_VALUES["account"],
             },
         }
+
+    def setAccessToken(self, token):
+        self.tokens["access"] = token
+
+    def setRefreshToken(self, token):
+        self.tokens["refresh"] = token
+
+    def setFeedToken(self, token):
+        self.tokens["feed"] = token
+
+    def getProfile(self, *args, **kwargs):
+        raise AssertionError("profile must never be contacted")
 
     def terminateSession(self, client_code):
         self.calls.append("terminate")
@@ -88,7 +108,7 @@ class FakeResponse:
 def instrument_rows():
     return [
         {
-            "token": "1",
+            "token": "99926000",
             "symbol": "NIFTY 50",
             "name": "NIFTY",
             "instrumenttype": "AMXIDX",
@@ -168,6 +188,36 @@ def test_authentication_attempts_are_bounded():
     assert fake.calls.count("authenticate") == 2
 
 
+def test_authentication_never_contacts_profile_and_keeps_tokens_in_sdk():
+    fake = FakeSdk()
+    adapter = make_adapter(fake)
+    adapter.authenticate()
+    assert fake.calls == ["authenticate"]
+    assert set(fake.tokens) == {"access", "refresh", "feed"}
+    assert adapter.request_count == 1
+
+
+def test_sdk_contract_change_fails_closed_before_network():
+    fake = FakeSdk()
+    fake._routes = {"api.login": "/changed"}
+    adapter = make_adapter(fake)
+    with pytest.raises(SmartApiError, match="sdk-contract-mismatch"):
+        adapter.authenticate()
+    assert fake.calls == []
+    assert adapter.request_count == 0
+
+
+def test_authentication_failure_is_sanitized(capsys):
+    fake = FakeSdk(fail_login=True)
+    adapter = make_adapter(fake)
+    with pytest.raises(SmartApiError) as raised:
+        adapter.authenticate()
+    rendered = str(raised.value) + capsys.readouterr().out
+    assert str(raised.value) == "provider-exception"
+    for value in FAKE_VALUES.values():
+        assert value not in rendered
+
+
 def test_selection_is_deterministic():
     first = select_instruments(instrument_rows(), datetime(2026, 8, 13, tzinfo=UTC).date())
     second = select_instruments(
@@ -180,6 +230,131 @@ def test_selection_is_deterministic():
         "representative-active-ce",
         "representative-active-pe",
     ]
+
+
+def test_selection_rejects_other_nifty_families_expired_and_malformed_rows():
+    rows = instrument_rows() + [
+        {
+            "token": "10",
+            "symbol": "BANKNIFTY20AUG26FUT",
+            "name": "BANKNIFTY",
+            "instrumenttype": "FUTIDX",
+            "exch_seg": "NFO",
+            "expiry": "20AUG2026",
+        },
+        {
+            "token": "11",
+            "symbol": "FINNIFTY20AUG26FUT",
+            "name": "FINNIFTY",
+            "instrumenttype": "FUTIDX",
+            "exch_seg": "NFO",
+            "expiry": "20AUG2026",
+        },
+        {
+            "token": "12",
+            "symbol": "MIDCPNIFTY20AUG26FUT",
+            "name": "MIDCPNIFTY",
+            "instrumenttype": "FUTIDX",
+            "exch_seg": "NFO",
+            "expiry": "20AUG2026",
+        },
+        {
+            "token": "13",
+            "symbol": "NIFTY20AUG26FUT",
+            "name": "NOTNIFTY",
+            "instrumenttype": "FUTIDX",
+            "exch_seg": "NFO",
+            "expiry": "20AUG2026",
+        },
+        {
+            "token": "14",
+            "symbol": "NIFTY30JUL26FUT",
+            "name": "NIFTY",
+            "instrumenttype": "FUTIDX",
+            "exch_seg": "NFO",
+            "expiry": "30JUL2026",
+        },
+        {
+            "token": "",
+            "symbol": "NIFTY27AUG26FUT",
+            "name": "NIFTY",
+            "instrumenttype": "FUTIDX",
+            "exch_seg": "NFO",
+            "expiry": "27AUG2026",
+        },
+        {
+            "symbol": "NIFTY27AUG26FUT",
+            "name": "NIFTY",
+            "instrumenttype": "FUTIDX",
+            "exch_seg": "NFO",
+            "expiry": "27AUG2026",
+        },
+        {
+            "token": "bad-token",
+            "symbol": "NIFTY27AUG2624000CE",
+            "name": "NIFTY",
+            "instrumenttype": "OPTIDX",
+            "exch_seg": "NFO",
+            "expiry": "27AUG2026",
+        },
+        {
+            "token": "15",
+            "symbol": "NIFTY20AUG2624000CE",
+            "name": "NIFTY",
+            "instrumenttype": "OPTIDX",
+            "exch_seg": "NFO",
+            "expiry": "20AUG2026",
+        },
+        {
+            "token": "16",
+            "symbol": "NIFTY20AUG2624000PE",
+            "name": "NIFTY",
+            "instrumenttype": "OPTIDX",
+            "exch_seg": "NFO",
+            "expiry": "20AUG2026",
+        },
+        {
+            "token": "26000",
+            "symbol": "FINNIFTY",
+            "name": "FINNIFTY",
+            "instrumenttype": "AMXIDX",
+            "exch_seg": "NSE",
+            "expiry": "",
+        },
+    ]
+    selected = select_instruments(rows, datetime(2026, 8, 13, tzinfo=UTC).date())
+    assert [(item.role, item.token) for item in selected] == [
+        ("nifty-spot", "99926000"),
+        ("nearest-active-future", "2"),
+        ("representative-active-ce", "3"),
+        ("representative-active-pe", "4"),
+    ]
+
+
+def test_options_must_match_selected_future_expiry():
+    rows = [row for row in instrument_rows() if row["instrumenttype"] != "OPTIDX"]
+    rows.extend(
+        [
+            {
+                "token": "20",
+                "symbol": "NIFTY20AUG2624000CE",
+                "name": "NIFTY",
+                "instrumenttype": "OPTIDX",
+                "exch_seg": "NFO",
+                "expiry": "20AUG2026",
+            },
+            {
+                "token": "21",
+                "symbol": "NIFTY20AUG2624000PE",
+                "name": "NIFTY",
+                "instrumenttype": "OPTIDX",
+                "exch_seg": "NFO",
+                "expiry": "20AUG2026",
+            },
+        ]
+    )
+    selected = select_instruments(rows, datetime(2026, 8, 13, tzinfo=UTC).date())
+    assert [item.role for item in selected] == ["nifty-spot", "nearest-active-future"]
 
 
 def test_candle_summary_contains_no_prices():
@@ -204,7 +379,7 @@ def test_session_termination_occurs_on_success_and_failure(fail):
 def test_calls_are_sequential_and_bounded():
     fake = FakeSdk()
     report = run_probe(make_adapter(fake), datetime(2026, 8, 13, tzinfo=UTC))
-    assert report.provider_request_count == 14
+    assert report.provider_request_count == 13
     assert fake.calls == [
         "authenticate",
         "candles",

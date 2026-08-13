@@ -35,7 +35,7 @@ Planned technology:
 
 ## Current status
 
-**Phase 2 — Historical ingestion is in progress; Phases 2A and 2B are complete locally.** One bounded, read-only SmartAPI probe verified selected current Nifty discovery, candle, volume, historical OI, and current snapshot/depth field capabilities. Expired contracts, historical bid/ask, maximum retention, and licensing remain unresolved. Genuine-data ingestion, live WebSockets, models, strategies, backtesting, brokers, trades, and order placement remain absent.
+**Phase 2 — Historical ingestion is in progress; Phase 2B is repaired and awaiting re-verification.** The initial probe verified authentication and general candle, OI, and FULL snapshot operations. Review found that the pinned SDK helper retrieved profile data internally and that generic-role evidence could not prove Nifty 50 derivative identity. The login-only path and exact selector are repaired offline; Nifty-specific claims require a new separately authorized bounded probe. Phase 2C has not started, and no backtesting or performance conclusion exists.
 
 See:
 

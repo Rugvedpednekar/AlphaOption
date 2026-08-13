@@ -10,14 +10,14 @@ Status terms: **verified** means exercised against documented provider behavior;
 
 | Capability | SmartAPI | NSE official reports | Licensed vendor |
 | --- | --- | --- | --- |
-| Nifty spot candles | Verified for bounded 1-minute/5-minute samples | Unverified | Unverified |
-| Nifty futures candles | Verified for one current bounded sample | Unverified | Unverified |
-| Current option candles | Verified for one current CE and PE bounded sample | Unverified | Unverified |
+| Nifty spot candles | Not-testable after evidence-identity review | Unverified | Unverified |
+| Nifty futures candles | Not-testable after selector review | Unverified | Unverified |
+| Current option candles | Not-testable after selector review | Unverified | Unverified |
 | Expired option candles | Not-testable | Unverified | Unverified |
 | Volume | Verified as a returned candle field | Unverified | Unverified |
-| Open interest | Verified through bounded live-contract historical OI samples | Unverified | Unverified |
-| Bid/ask quotes | Verified for one current FULL snapshot; historical not-testable | Unavailable in end-of-day reports | Unverified |
-| Instrument metadata | Verified for current spot, future, CE, and PE discovery | Unverified | Unverified |
+| Open interest | General operation verified; Nifty-specific result not-testable | Unverified | Unverified |
+| Bid/ask quotes | General current FULL operation verified; historical not-testable | Unavailable in end-of-day reports | Unverified |
+| Instrument metadata | Nifty-specific discovery not-testable after selector review | Unverified | Unverified |
 
 No claim is made that SmartAPI supplies expired-option history until an authorized, reproducible credentialed test confirms instrument discovery, date limits, granularity, and returned fields.
 
@@ -31,4 +31,4 @@ Exchange and provider terms may restrict storage duration, derived datasets, pub
 
 ## Next validation step
 
-Phase 2B verified bounded current-instrument discovery, candles, volume, live-contract historical OI, and current FULL snapshot/depth fields. Expired-contract discovery, historical bid/ask, maximum retention, and licensing remain unresolved. Phase 2C may be planned only after explicit approval and a lawful retention/licensing decision; Phase 2B adds no WebSockets, general ingestion, feature engineering, ML, backtesting, or order functionality.
+The initial Phase 2B probe verified authentication and general candle, volume, historical OI, and current FULL snapshot/depth operations. Review found that the SDK helper retrieved profile data internally, although it was not persisted, and that generic-role evidence cannot prove Nifty 50 derivative identity. Both code paths are repaired offline. One new separately authorized bounded probe is required for Nifty-specific claims. No request was made during repair, raw evidence remains ignored, and Phase 2C has not started.

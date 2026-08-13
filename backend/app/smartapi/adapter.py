@@ -18,7 +18,12 @@ INSTRUMENT_MASTER_URL = (
 
 
 class SmartApiSdk(Protocol):
-    def generateSession(self, client_code: str, pin: str, totp: str) -> dict[str, Any]: ...
+    _routes: dict[str, str]
+
+    def _postRequest(self, route: str, params: dict[str, str]) -> dict[str, Any]: ...
+    def setAccessToken(self, access_token: str) -> None: ...
+    def setRefreshToken(self, refresh_token: str) -> None: ...
+    def setFeedToken(self, feed_token: str) -> None: ...
     def terminateSession(self, client_code: str) -> dict[str, Any]: ...
     def getCandleData(self, params: dict[str, str]) -> dict[str, Any]: ...
     def getOIData(self, params: dict[str, str]) -> dict[str, Any]: ...
@@ -96,19 +101,52 @@ class ReadOnlySmartApiAdapter:
         try:
             totp = pyotp.TOTP(seed).now()
             self._sdk = self._sdk_factory(api_key)
-            # generateSession performs login and, on success, one safe profile
-            # request internally. Only exchange capability metadata is retained.
+            self._assert_login_only_sdk_contract(self._sdk)
             self.request_count += 1
             with suppress_sdk_logs():
-                response = self._sdk.generateSession(client_code, pin, totp)
+                # smartapi-python 1.5.5 generateSession() calls getProfile().
+                # Invoke its pinned login route directly and keep returned tokens
+                # only on this short-lived SDK instance.
+                response = self._sdk._postRequest(
+                    "api.login", {"clientcode": client_code, "password": pin, "totp": totp}
+                )
+        except SmartApiError:
+            self._sdk = None
+            raise
         except Exception as exc:
+            self._sdk = None
             category, code = sanitize_exception(exc)
             raise SmartApiError(category, code) from None
         if not response.get("status"):
+            self._sdk = None
             raise SmartApiError(
                 "authentication-rejected", safe_provider_code(response.get("errorcode"))
             )
-        self.request_count += 1
+        data = response.get("data")
+        if not isinstance(data, dict):
+            self._sdk = None
+            raise SmartApiError("provider-invalid-response")
+        tokens = tuple(data.get(key) for key in ("jwtToken", "refreshToken", "feedToken"))
+        if not all(isinstance(token, str) and token for token in tokens):
+            self._sdk = None
+            raise SmartApiError("provider-invalid-response")
+        access_token, refresh_token, feed_token = tokens
+        self._sdk.setAccessToken(access_token)
+        self._sdk.setRefreshToken(refresh_token)
+        self._sdk.setFeedToken(feed_token)
+
+    @staticmethod
+    def _assert_login_only_sdk_contract(sdk: SmartApiSdk) -> None:
+        """Fail closed if the pinned SDK's private login contract changes."""
+        routes = getattr(sdk, "_routes", None)
+        expected_route = "/rest/auth/angelbroking/user/v1/loginByPassword"
+        required = ("_postRequest", "setAccessToken", "setRefreshToken", "setFeedToken")
+        if (
+            not isinstance(routes, dict)
+            or routes.get("api.login") != expected_route
+            or any(not callable(getattr(sdk, name, None)) for name in required)
+        ):
+            raise SmartApiError("sdk-contract-mismatch")
 
     def terminate_session(self) -> bool | None:
         if self._sdk is None:
