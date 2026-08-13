@@ -92,9 +92,9 @@ Phases 0 and 1 are completed; Phase 2 is in progress; Phases 3–11 are pending.
 
 ## Next actions
 
-1. Review Phase 2A changes before any commit or push.
-2. Define Phase 2B as a narrow, credentialed SmartAPI capability probe with redacted evidence and licensing review.
-3. Do not add live WebSockets, feature engineering, ML, backtesting, or any trading/order capability in Phase 2B.
+1. Keep draft PR #1 open while Phase 2A awaits review and merge.
+2. Begin Phase 2B only after Phase 2A is merged.
+3. Define Phase 2B as a narrow, credentialed SmartAPI capability probe with redacted evidence and licensing review; do not add live WebSockets, feature engineering, ML, backtesting, or any trading/order capability.
 
 ## Dated progress history
 
