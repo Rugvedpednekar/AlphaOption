@@ -4,13 +4,13 @@
 
 ## Project status
 
-Planning and local research. The expanded project architecture is complete, and the remaining Phase 0 documentation foundation is being established. No backend, frontend, SmartAPI integration, model, backtester, or order-execution capability has been implemented.
+Local application foundation implementation and verification. Phase 0 is complete. Phase 1 code is implemented, but container acceptance remains incomplete because Docker Desktop's Linux engine was unavailable during verification. No SmartAPI integration, market-data ingestion, model, strategy, backtester, broker adapter, trade, or order-execution capability exists.
 
 ## Current phase
 
-**Phase 0 — Repository foundation: In progress**
+**Phase 1 — Local application skeleton: In progress**
 
-Phases 1–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` are the required safe defaults.
+Phase 0 is completed; Phases 2–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` are enforced safe defaults.
 
 ## Completed work
 
@@ -19,18 +19,32 @@ Phases 1–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` a
 - Phase 0 supporting documentation drafted and aligned to the blueprint.
 - Blueprint encoding normalized for reliable Windows and UTF-8 rendering.
 
-Only the blueprint and repository initialization are considered complete. Phase 0 remains in progress until final verification, commit, push, and this log’s completion state are reconciled.
+- Phase 0 documentation foundation verified, committed, and pushed.
+- FastAPI application with safe Pydantic settings, local CORS, structured redacted logging, and read-only health/status routes.
+- SQLAlchemy PostgreSQL configuration, `system_events` model, Alembic environment, and initial migration.
+- Next.js 16/TypeScript strict dashboard shell with accessible navigation, health integration, safe empty states, and paper-only banner.
+- Docker Compose definitions for private PostgreSQL networking, backend, and frontend with health dependencies and named storage.
+- Backend and frontend automated checks plus locked Python/npm dependencies.
 
 ## Verification performed
 
 - Read `PROJECT_BLUEPRINT.md` completely before supporting-document edits.
 - Compared phase names and boundaries across the blueprint and implementation plan.
 - Reviewed paper/live safety language and configuration defaults.
-- Additional Markdown, secret, Git diff, and repository checks will be recorded only after execution.
+- `docker compose config` completed successfully.
+- Backend Ruff lint and format checks completed successfully on Python 3.12.13.
+- Backend Pytest completed: 6 passed (with a third-party TestClient deprecation warning and sandbox cache warning).
+- Alembic offline PostgreSQL migration SQL generation completed successfully.
+- Host-started backend endpoints returned safe paper-mode data and correctly reported the absent local PostgreSQL service as unhealthy/degraded.
+- Frontend component tests completed: 4 passed, covering the safety banner and healthy, unavailable, and database-unhealthy states.
+- Frontend ESLint, strict TypeScript check, and Next.js production build completed successfully.
+- Host-started production frontend returned HTTP 200 and rendered both AlphaOption branding and the exact paper-only banner.
+- Full `npm audit` completed with 0 vulnerabilities after upgrading to Next.js 16.3 and Recharts 3.
+- Docker image build/start, live migration, running health/UI, banner inspection, and clean shutdown were not executed because Docker Desktop's Linux engine was not running.
 
 ## Current blockers
 
-- No blocker prevents completion of Phase 0.
+- Docker Desktop's Linux engine must be started to complete Phase 1 container acceptance.
 - Phase 2 will require lawful access to historical option prices/quotes and confirmed data retention/licensing terms.
 - Phase 8 will require user-provided SmartAPI credentials stored outside source control; credentials are neither needed nor permitted in Phase 0.
 - Live execution remains blocked by design until all Phase 11 gates and explicit approvals are satisfied.
@@ -51,10 +65,11 @@ Only the blueprint and repository initialization are considered complete. Phase 
 
 ## Next actions
 
-1. Finish Phase 0 consistency, secret, Markdown/repository, status, and diff checks.
-2. Commit and push the complete Phase 0 documentation foundation.
-3. Update Phase 0 to completed after all acceptance checks are satisfied.
-4. Begin Phase 1 only after approval: local FastAPI/Next.js/PostgreSQL/Docker Compose skeleton and health checks, with no broker authentication or strategy/order code.
+1. Start Docker Desktop with Linux containers enabled.
+2. Build and start all Compose services, then confirm migrations and database health.
+3. Verify the backend endpoints, frontend load, and visible paper-only banner in the running stack.
+4. Stop the stack cleanly and mark Phase 1 completed only if those checks pass.
+5. Do not begin Phase 2 until Phase 1 acceptance is complete and approved.
 
 ## Dated progress history
 
@@ -68,3 +83,10 @@ Only the blueprint and repository initialization are considered complete. Phase 
 
 - Began aligning the implementation plan, progress log, README, ignore rules, safe environment template, and security policy with the completed blueprint.
 - Kept all implementation work and credentials out of scope.
+
+### 2026-08-13 — Phase 1 local application skeleton
+
+- Marked Phase 0 completed and implemented the backend, database/migration, frontend dashboard, Docker Compose, and automated-check foundations.
+- Chose synchronous SQLAlchemy/psycopg for the minimal health path, Next.js 16 with static standalone output, localhost-only host ports, and no PostgreSQL host port.
+- Added no Redis because Phase 1 has no job coordination or transient live state requiring it.
+- Kept Phase 1 in progress because Docker Desktop was installed but its Linux engine was not running, preventing container runtime verification.

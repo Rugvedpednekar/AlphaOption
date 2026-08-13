@@ -35,7 +35,7 @@ Planned technology:
 
 ## Current status
 
-**Phase 0 — Repository foundation is in progress.** The project blueprint is complete, and its supporting documentation, safe defaults, security rules, and roadmap are being established. No backend, frontend, SmartAPI integration, data pipeline, model, backtester, broker, or order-placement code has been implemented.
+**Phase 1 — Local application skeleton is in progress.** Phase 0 is complete. The FastAPI, Next.js, PostgreSQL, Alembic, Docker Compose, health/status, dashboard-shell, and automated-check foundations are implemented. Container runtime acceptance remains pending until Docker Desktop is running. SmartAPI, market data, models, strategies, backtesting, brokers, trades, and order placement remain absent.
 
 See:
 
@@ -59,7 +59,63 @@ See:
 11. AWS paper deployment
 12. Separately reviewed, gated live option buying
 
-The target future local command is `docker compose up --build`, but Phase 0 deliberately provides no application scaffolding. The first AWS deployment must remain paper-only.
+## Local startup and operations
+
+Prerequisites are Docker Desktop with Linux containers enabled and Docker Compose. A real `.env` is optional because Compose supplies safe local defaults; if one is created, copy `.env.example`, keep it untracked, and never add real broker credentials during Phase 1.
+
+Build and start the complete stack:
+
+```powershell
+docker compose up --build -d
+```
+
+The backend automatically applies `alembic upgrade head` before starting. To apply or inspect migrations explicitly:
+
+```powershell
+docker compose run --rm backend alembic upgrade head
+docker compose run --rm backend alembic current
+```
+
+Open:
+
+- Dashboard: <http://localhost:3000>
+- Backend API: <http://localhost:8000>
+- API documentation: <http://localhost:8000/docs>
+- Health: <http://localhost:8000/api/health>
+- System status: <http://localhost:8000/api/system/status>
+
+Run backend checks with an installed Python 3.12 and `uv`:
+
+```powershell
+cd backend
+uv sync --python 3.12 --extra dev
+uv run ruff check .
+uv run ruff format --check .
+uv run pytest
+uv run alembic upgrade head --sql
+```
+
+Run frontend checks:
+
+```powershell
+cd frontend
+npm install
+npm test
+npm run lint
+npm run typecheck
+npm run build
+npm audit
+```
+
+Inspect and stop the stack cleanly:
+
+```powershell
+docker compose ps
+docker compose logs --no-log-prefix backend frontend
+docker compose down
+```
+
+Use `docker compose down -v` only when intentionally deleting local PostgreSQL data. PostgreSQL has no host port; the backend and frontend bind only to localhost. The first AWS deployment must remain paper-only.
 
 ## Research and execution integrity
 

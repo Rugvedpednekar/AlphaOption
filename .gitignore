@@ -22,6 +22,7 @@ env/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+pytest-cache-files-*/
 .mypy_cache/
 .ruff_cache/
 .coverage
@@ -36,6 +37,7 @@ node_modules/
 out/
 .turbo/
 coverage/
+*.tsbuildinfo
 
 # IDE and OS files
 .idea/

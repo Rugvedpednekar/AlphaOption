@@ -4,7 +4,7 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 
 ## Phase 0: Repository foundation
 
-**Status:** In progress
+**Status:** Completed
 
 - **Objective:** Establish project governance, scope, safety defaults, architecture, and a reproducible delivery plan without application code.
 - **Deliverables:** `PROJECT_BLUEPRINT.md`, this plan, `PROJECT_UPDATE.md`, `README.md`, `.gitignore`, `.env.example`, and `SECURITY.md`.
@@ -13,11 +13,11 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 - **Acceptance criteria:** All Phase 0 files are committed on `main`; documentation is internally consistent and readable as UTF-8; no application scaffolding, credentials, or live-order capability exists.
 - **Dependencies:** Initialized Git repository and approved blueprint.
 - **Risks:** Documentation drift, accidental secret inclusion, unclear paper/live boundaries, platform-specific text encoding.
-- **Completion checklist:** [x] Blueprint established; [x] supporting files drafted; [ ] final checks complete; [ ] Phase 0 commit pushed; [ ] progress log updated to completed.
+- **Completion checklist:** [x] Blueprint established; [x] supporting files drafted; [x] final checks complete; [x] Phase 0 commit pushed; [x] progress log updated to completed.
 
 ## Phase 1: Local application skeleton
 
-**Status:** Pending
+**Status:** In progress
 
 - **Objective:** Create a reliable Windows-compatible local development foundation.
 - **Deliverables:** FastAPI service, Next.js/TypeScript dashboard shell, PostgreSQL, SQLAlchemy/Alembic, Docker Compose, configuration validation, health endpoints, and test harnesses.
@@ -26,7 +26,7 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 - **Acceptance criteria:** One documented local workflow starts healthy services; paper mode is the default; no strategy, broker authentication, or order code exists.
 - **Dependencies:** Phase 0.
 - **Risks:** Windows/Docker differences, dependency incompatibility, insecure configuration defaults.
-- **Completion checklist:** [ ] Services scaffolded; [ ] database initialized; [ ] checks automated; [ ] paper banner visible; [ ] documentation updated.
+- **Completion checklist:** [x] Services scaffolded; [x] database model and migration created; [x] host checks automated and passing; [x] paper banner covered by a component test; [x] documentation updated; [x] `docker compose config` verified; [ ] Docker images built; [ ] live PostgreSQL migration/health verified; [ ] frontend verified in the running stack; [ ] clean stack shutdown verified.
 
 ## Phase 2: Historical ingestion
 
