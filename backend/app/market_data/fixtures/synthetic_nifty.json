@@ -1,0 +1,15 @@
+{
+  "notice": "SYNTHETIC TEST DATA — NOT GENUINE MARKET HISTORY",
+  "instruments": [
+    {"exchange":"NSE","token":"TEST-NIFTY-SPOT","trading_symbol":"NIFTY 50 TEST","instrument_type":"spot","lot_size":1,"tick_size":"0.05"},
+    {"exchange":"NFO","token":"TEST-NIFTY-FUT","trading_symbol":"NIFTY FUT TEST","instrument_type":"future","expiry":"2026-08-27","lot_size":75,"tick_size":"0.05"},
+    {"exchange":"NFO","token":"TEST-NIFTY-25000-CE","trading_symbol":"NIFTY 25000 CE TEST","instrument_type":"option","expiry":"2026-08-27","strike":"25000","option_type":"CE","lot_size":75,"tick_size":"0.05"},
+    {"exchange":"NFO","token":"TEST-NIFTY-25000-PE","trading_symbol":"NIFTY 25000 PE TEST","instrument_type":"option","expiry":"2026-08-27","strike":"25000","option_type":"PE","lot_size":75,"tick_size":"0.05"}
+  ],
+  "candles": [
+    {"exchange":"NSE","token":"TEST-NIFTY-SPOT","timeframe":"1m","timestamp":"2026-08-13T09:15:00+05:30","open":"24990","high":"25005","low":"24985","close":"25000","volume":1000},
+    {"exchange":"NFO","token":"TEST-NIFTY-FUT","timeframe":"1m","timestamp":"2026-08-13T09:15:00+05:30","open":"25020","high":"25035","low":"25015","close":"25030","volume":800,"open_interest":120000},
+    {"exchange":"NFO","token":"TEST-NIFTY-25000-CE","timeframe":"1m","timestamp":"2026-08-13T09:15:00+05:30","open":"120","high":"126","low":"118","close":"124","volume":600,"open_interest":45000},
+    {"exchange":"NFO","token":"TEST-NIFTY-25000-PE","timeframe":"1m","timestamp":"2026-08-13T09:15:00+05:30","open":"112","high":"115","low":"106","close":"108","volume":650,"open_interest":47000}
+  ]
+}

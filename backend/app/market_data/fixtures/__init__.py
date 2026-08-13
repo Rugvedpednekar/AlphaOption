@@ -1,0 +1,1 @@
+"""Redistributable synthetic fixtures only."""
