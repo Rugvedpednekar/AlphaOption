@@ -17,7 +17,7 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 
 ## Phase 1: Local application skeleton
 
-**Status:** In progress
+**Status:** Completed
 
 - **Objective:** Create a reliable Windows-compatible local development foundation.
 - **Deliverables:** FastAPI service, Next.js/TypeScript dashboard shell, PostgreSQL, SQLAlchemy/Alembic, Docker Compose, configuration validation, health endpoints, and test harnesses.
@@ -26,7 +26,7 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 - **Acceptance criteria:** One documented local workflow starts healthy services; paper mode is the default; no strategy, broker authentication, or order code exists.
 - **Dependencies:** Phase 0.
 - **Risks:** Windows/Docker differences, dependency incompatibility, insecure configuration defaults.
-- **Completion checklist:** [x] Services scaffolded; [x] database model and migration created; [x] host checks automated and passing; [x] paper banner covered by a component test; [x] documentation updated; [x] `docker compose config` verified; [ ] Docker images built; [ ] live PostgreSQL migration/health verified; [ ] frontend verified in the running stack; [ ] clean stack shutdown verified.
+- **Completion checklist:** [x] Services scaffolded; [x] database model and migration created; [x] checks automated and passing; [x] paper banner verified; [x] documentation updated; [x] `docker compose config` verified; [x] Docker images built; [x] live PostgreSQL migration and health verified; [x] backend health and system status verified; [x] frontend and safety banner verified in the running stack; [x] fail-closed live-order configuration verified; [x] container logs reviewed; [x] clean stack shutdown verified.
 
 ## Phase 2: Historical ingestion
 

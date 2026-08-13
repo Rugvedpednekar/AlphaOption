@@ -35,7 +35,7 @@ Planned technology:
 
 ## Current status
 
-**Phase 1 — Local application skeleton is in progress.** Phase 0 is complete. The FastAPI, Next.js, PostgreSQL, Alembic, Docker Compose, health/status, dashboard-shell, and automated-check foundations are implemented. Container runtime acceptance remains pending until Docker Desktop is running. SmartAPI, market data, models, strategies, backtesting, brokers, trades, and order placement remain absent.
+**Phase 1 — Local application skeleton is complete.** The FastAPI, Next.js, PostgreSQL, Alembic, Docker Compose, health/status, dashboard-shell, and automated-check foundations have passed local and full-stack container verification. SmartAPI, market data, models, strategies, backtesting, brokers, trades, and order placement remain absent. Phase 2 has not started.
 
 See:
 

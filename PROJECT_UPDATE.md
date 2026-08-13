@@ -4,13 +4,13 @@
 
 ## Project status
 
-Local application foundation implementation and verification. Phase 0 is complete. Phase 1 code is implemented, but container acceptance remains incomplete because Docker Desktop's Linux engine was unavailable during verification. No SmartAPI integration, market-data ingestion, model, strategy, backtester, broker adapter, trade, or order-execution capability exists.
+Local application foundation completed and verified. Phases 0 and 1 are complete. The full Docker Compose stack has passed its local acceptance checks. No SmartAPI integration, market-data ingestion, model, strategy, backtester, broker adapter, trade, or order-execution capability exists.
 
 ## Current phase
 
-**Phase 1 — Local application skeleton: In progress**
+**Phase 1 — Local application skeleton: Completed**
 
-Phase 0 is completed; Phases 2–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` are enforced safe defaults.
+Phases 0 and 1 are completed; Phases 2–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` are enforced safe defaults.
 
 ## Completed work
 
@@ -40,11 +40,19 @@ Phase 0 is completed; Phases 2–11 are pending. `TRADING_MODE=paper` and `ENABL
 - Frontend ESLint, strict TypeScript check, and Next.js production build completed successfully.
 - Host-started production frontend returned HTTP 200 and rendered both AlphaOption branding and the exact paper-only banner.
 - Full `npm audit` completed with 0 vulnerabilities after upgrading to Next.js 16.3 and Recharts 3.
-- Docker image build/start, live migration, running health/UI, banner inspection, and clean shutdown were not executed because Docker Desktop's Linux engine was not running.
+- Docker images built and the full Compose stack started successfully.
+- PostgreSQL, backend, and frontend container health checks completed successfully.
+- PostgreSQL remained internal to the Compose network with no published host port.
+- Alembic's current revision was checked against the running PostgreSQL database.
+- Backend health and system-status responses were checked in the running stack.
+- The dashboard loaded and displayed the exact `PAPER TRADING — NO REAL ORDERS` safety banner.
+- Startup with `ENABLE_LIVE_ORDERS=true` was checked and failed closed as required.
+- Container logs were reviewed, and the stack was shut down cleanly.
+- The frontend container health check was corrected from IPv6-resolving `localhost` to `127.0.0.1`.
+- The frontend package lock was regenerated with Linux-compatible optional dependencies.
 
 ## Current blockers
 
-- Docker Desktop's Linux engine must be started to complete Phase 1 container acceptance.
 - Phase 2 will require lawful access to historical option prices/quotes and confirmed data retention/licensing terms.
 - Phase 8 will require user-provided SmartAPI credentials stored outside source control; credentials are neither needed nor permitted in Phase 0.
 - Live execution remains blocked by design until all Phase 11 gates and explicit approvals are satisfied.
@@ -65,11 +73,9 @@ Phase 0 is completed; Phases 2–11 are pending. `TRADING_MODE=paper` and `ENABL
 
 ## Next actions
 
-1. Start Docker Desktop with Linux containers enabled.
-2. Build and start all Compose services, then confirm migrations and database health.
-3. Verify the backend endpoints, frontend load, and visible paper-only banner in the running stack.
-4. Stop the stack cleanly and mark Phase 1 completed only if those checks pass.
-5. Do not begin Phase 2 until Phase 1 acceptance is complete and approved.
+1. Review and approve the completed Phase 1 foundation.
+2. Define Phase 2 historical-data acquisition and licensing constraints before implementation.
+3. Do not begin Phase 2 without explicit approval.
 
 ## Dated progress history
 
@@ -89,4 +95,11 @@ Phase 0 is completed; Phases 2–11 are pending. `TRADING_MODE=paper` and `ENABL
 - Marked Phase 0 completed and implemented the backend, database/migration, frontend dashboard, Docker Compose, and automated-check foundations.
 - Chose synchronous SQLAlchemy/psycopg for the minimal health path, Next.js 16 with static standalone output, localhost-only host ports, and no PostgreSQL host port.
 - Added no Redis because Phase 1 has no job coordination or transient live state requiring it.
-- Kept Phase 1 in progress because Docker Desktop was installed but its Linux engine was not running, preventing container runtime verification.
+- Initially kept Phase 1 in progress because Docker Desktop was installed but its Linux engine was not running during the first verification pass.
+
+### 2026-08-13 — Phase 1 container acceptance completed
+
+- Built and ran the complete PostgreSQL, FastAPI, and Next.js Docker Compose stack.
+- Verified the applied Alembic revision, backend health/status responses, PostgreSQL health and network isolation, dashboard safety banner, fail-closed live-order configuration, container logs, and clean shutdown.
+- Corrected the frontend health check to use IPv4 loopback and regenerated the frontend package lock for Linux container compatibility.
+- Marked Phase 1 completed. Phase 2 remains pending.
