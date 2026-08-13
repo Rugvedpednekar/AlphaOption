@@ -6,18 +6,18 @@ AlphaOption will use Angel One SmartAPI as its initial broker-market-data provid
 
 ## Capability matrix
 
-Status terms: **verified** means exercised against documented provider behavior; **credential-test-required** needs an authorized account test; **unverified** lacks sufficient evidence; **unavailable** means the source does not provide it in the intended interface.
+Status terms: **verified** means exercised against documented provider behavior; **not-testable** means the bounded probe could not lawfully or technically exercise it; **unverified** lacks sufficient evidence; **unavailable** means observed evidence establishes that the source does not provide it in the intended interface.
 
 | Capability | SmartAPI | NSE official reports | Licensed vendor |
 | --- | --- | --- | --- |
-| Nifty spot candles | Credential-test-required | Unverified | Unverified |
-| Nifty futures candles | Credential-test-required | Unverified | Unverified |
-| Current option candles | Credential-test-required | Unverified | Unverified |
-| Expired option candles | Credential-test-required | Unverified | Unverified |
-| Volume | Credential-test-required | Unverified | Unverified |
-| Open interest | Credential-test-required | Unverified | Unverified |
-| Bid/ask quotes | Credential-test-required | Unavailable in end-of-day reports | Unverified |
-| Instrument metadata | Credential-test-required | Unverified | Unverified |
+| Nifty spot candles | Verified for bounded 1-minute/5-minute samples | Unverified | Unverified |
+| Nifty futures candles | Verified for one current bounded sample | Unverified | Unverified |
+| Current option candles | Verified for one current CE and PE bounded sample | Unverified | Unverified |
+| Expired option candles | Not-testable | Unverified | Unverified |
+| Volume | Verified as a returned candle field | Unverified | Unverified |
+| Open interest | Verified through bounded live-contract historical OI samples | Unverified | Unverified |
+| Bid/ask quotes | Verified for one current FULL snapshot; historical not-testable | Unavailable in end-of-day reports | Unverified |
+| Instrument metadata | Verified for current spot, future, CE, and PE discovery | Unverified | Unverified |
 
 No claim is made that SmartAPI supplies expired-option history until an authorized, reproducible credentialed test confirms instrument discovery, date limits, granularity, and returned fields.
 
@@ -31,4 +31,4 @@ Exchange and provider terms may restrict storage duration, derived datasets, pub
 
 ## Next validation step
 
-Phase 2B should perform a credentialed capability probe in an approved local environment, save only redacted capability evidence, and update this matrix. It must not add live WebSockets, feature engineering, ML, backtesting, or order functionality.
+Phase 2B verified bounded current-instrument discovery, candles, volume, live-contract historical OI, and current FULL snapshot/depth fields. Expired-contract discovery, historical bid/ask, maximum retention, and licensing remain unresolved. Phase 2C may be planned only after explicit approval and a lawful retention/licensing decision; Phase 2B adds no WebSockets, general ingestion, feature engineering, ML, backtesting, or order functionality.

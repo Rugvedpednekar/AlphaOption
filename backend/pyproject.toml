@@ -10,10 +10,14 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
   "alembic>=1.14,<2",
   "fastapi>=0.115,<1",
+  "logzero==1.7.0",
+  "pyotp==2.9.0",
   "psycopg[binary]>=3.2,<4",
   "pydantic-settings>=2.7,<3",
+  "smartapi-python==1.5.5",
   "sqlalchemy>=2.0,<3",
   "uvicorn[standard]>=0.34,<1",
+  "websocket-client==1.8.0",
 ]
 
 [project.optional-dependencies]
@@ -26,6 +30,7 @@ dev = [
 
 [project.scripts]
 alphaoption-market-data = "app.market_data.cli:main"
+alphaoption-smartapi = "app.smartapi.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["app"]

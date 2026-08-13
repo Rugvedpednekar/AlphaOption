@@ -1,13 +1,13 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(".env", "../.env"),
         env_file_encoding="utf-8",
         extra="ignore",
         case_sensitive=False,
@@ -23,6 +23,12 @@ class Settings(BaseSettings):
         default="postgresql+psycopg://alphaoption:alphaoption_local@db:5432/alphaoption"
     )
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    smartapi_enabled: bool = False
+    smartapi_api_key: SecretStr | None = None
+    smartapi_client_code: SecretStr | None = None
+    smartapi_pin: SecretStr | None = None
+    smartapi_totp_secret: SecretStr | None = None
+    smartapi_api_secret: SecretStr | None = None
 
     @field_validator("enable_live_orders")
     @classmethod
