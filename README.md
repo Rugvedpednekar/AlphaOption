@@ -35,7 +35,7 @@ Planned technology:
 
 ## Current status
 
-**Phase 2 — Historical ingestion is in progress; Phase 2A is complete.** The provider-independent schema, synthetic fixture ingestion, coverage APIs, and Data Status dashboard have passed host and full-stack verification. SmartAPI credentials, genuine market history, live WebSockets, models, strategies, backtesting, brokers, trades, and order placement remain absent.
+**Phase 2 — Historical ingestion is in progress; Phase 2B is repaired and awaiting re-verification.** The initial probe verified authentication and general candle, OI, and FULL snapshot operations. Review found that the pinned SDK helper retrieved profile data internally and that generic-role evidence could not prove Nifty 50 derivative identity. The login-only path and exact selector are repaired offline; Nifty-specific claims require a new separately authorized bounded probe. Phase 2C has not started, and no backtesting or performance conclusion exists.
 
 See:
 
@@ -105,6 +105,17 @@ uv run ruff format --check .
 uv run pytest
 uv run alembic upgrade head --sql
 ```
+
+Run the Phase 2B zero-network readiness check from `backend`:
+
+```powershell
+uv run alphaoption-smartapi probe --dry-run
+```
+
+Credentialed execution is host-only and additionally requires the explicit
+`--execute --acknowledge-read-only` gates. Credentials belong only in an ignored
+local `.env`; never place them on the command line, in Compose, or in
+`NEXT_PUBLIC_*` variables. Live orders remain disabled.
 
 Run frontend checks:
 

@@ -73,6 +73,7 @@ datasets/
 artifacts/models/
 checkpoints/
 artifacts/reports/
+artifacts/smartapi-probes/
 results/
 research/reports/
 backtest-results/

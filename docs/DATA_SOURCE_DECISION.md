@@ -6,18 +6,18 @@ AlphaOption will use Angel One SmartAPI as its initial broker-market-data provid
 
 ## Capability matrix
 
-Status terms: **verified** means exercised against documented provider behavior; **credential-test-required** needs an authorized account test; **unverified** lacks sufficient evidence; **unavailable** means the source does not provide it in the intended interface.
+Status terms: **verified** means exercised against documented provider behavior; **not-testable** means the bounded probe could not lawfully or technically exercise it; **unverified** lacks sufficient evidence; **unavailable** means observed evidence establishes that the source does not provide it in the intended interface.
 
 | Capability | SmartAPI | NSE official reports | Licensed vendor |
 | --- | --- | --- | --- |
-| Nifty spot candles | Credential-test-required | Unverified | Unverified |
-| Nifty futures candles | Credential-test-required | Unverified | Unverified |
-| Current option candles | Credential-test-required | Unverified | Unverified |
-| Expired option candles | Credential-test-required | Unverified | Unverified |
-| Volume | Credential-test-required | Unverified | Unverified |
-| Open interest | Credential-test-required | Unverified | Unverified |
-| Bid/ask quotes | Credential-test-required | Unavailable in end-of-day reports | Unverified |
-| Instrument metadata | Credential-test-required | Unverified | Unverified |
+| Nifty spot candles | Not-testable after evidence-identity review | Unverified | Unverified |
+| Nifty futures candles | Not-testable after selector review | Unverified | Unverified |
+| Current option candles | Not-testable after selector review | Unverified | Unverified |
+| Expired option candles | Not-testable | Unverified | Unverified |
+| Volume | Verified as a returned candle field | Unverified | Unverified |
+| Open interest | General operation verified; Nifty-specific result not-testable | Unverified | Unverified |
+| Bid/ask quotes | General current FULL operation verified; historical not-testable | Unavailable in end-of-day reports | Unverified |
+| Instrument metadata | Nifty-specific discovery not-testable after selector review | Unverified | Unverified |
 
 No claim is made that SmartAPI supplies expired-option history until an authorized, reproducible credentialed test confirms instrument discovery, date limits, granularity, and returned fields.
 
@@ -31,4 +31,4 @@ Exchange and provider terms may restrict storage duration, derived datasets, pub
 
 ## Next validation step
 
-Phase 2B should perform a credentialed capability probe in an approved local environment, save only redacted capability evidence, and update this matrix. It must not add live WebSockets, feature engineering, ML, backtesting, or order functionality.
+The initial Phase 2B probe verified authentication and general candle, volume, historical OI, and current FULL snapshot/depth operations. Review found that the SDK helper retrieved profile data internally, although it was not persisted, and that generic-role evidence cannot prove Nifty 50 derivative identity. Both code paths are repaired offline. One new separately authorized bounded probe is required for Nifty-specific claims. No request was made during repair, raw evidence remains ignored, and Phase 2C has not started.
