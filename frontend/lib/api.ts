@@ -11,7 +11,7 @@ export interface SystemStatus {
   market_timezone: "Asia/Kolkata";
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 
 export async function fetchSystemStatus(signal?: AbortSignal): Promise<SystemStatus> {
   const response = await fetch(`${API_URL}/api/system/status`, {
@@ -22,3 +22,27 @@ export async function fetchSystemStatus(signal?: AbortSignal): Promise<SystemSta
   if (!response.ok) throw new Error(`Backend returned ${response.status}`);
   return (await response.json()) as SystemStatus;
 }
+
+export interface MarketDataCoverage {
+  instruments_stored: number;
+  candle_count: number;
+  earliest_candle_timestamp: string | null;
+  latest_candle_timestamp: string | null;
+  contains_synthetic_data: boolean;
+  coverage: Array<{ instrument_type: string; timeframe: string; candle_count: number }>;
+}
+
+export interface IngestionRun {
+  id: string; provider: string; dataset: string; status: string; started_at: string;
+  records_received: number; records_inserted: number; records_updated: number;
+  records_rejected: number; is_synthetic: boolean;
+}
+
+async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, { signal, cache: "no-store", headers: { Accept: "application/json" } });
+  if (!response.ok) throw new Error(`Backend returned ${response.status}`);
+  return (await response.json()) as T;
+}
+
+export const fetchMarketDataCoverage = (signal?: AbortSignal) => getJson<MarketDataCoverage>("/api/market-data/coverage", signal);
+export const fetchIngestionRuns = (signal?: AbortSignal) => getJson<{ items: IngestionRun[] }>("/api/market-data/ingestion-runs?limit=10", signal);

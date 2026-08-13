@@ -4,13 +4,13 @@
 
 ## Project status
 
-Local application foundation completed and verified. Phases 0 and 1 are complete. The full Docker Compose stack has passed its local acceptance checks. No SmartAPI integration, market-data ingestion, model, strategy, backtester, broker adapter, trade, or order-execution capability exists.
+Market-data foundation development. Phases 0 and 1 are complete. Phase 2 is in progress, with Phase 2A completed and verified. Provider-independent storage, synthetic fixture ingestion, coverage APIs, and the Data Status UI exist. Credentialed SmartAPI access, live WebSockets, genuine market data, features, ML, backtesting, brokers, trades, and order execution remain absent.
 
 ## Current phase
 
-**Phase 1 — Local application skeleton: Completed**
+**Phase 2 — Historical ingestion: In progress (Phase 2A completed)**
 
-Phases 0 and 1 are completed; Phases 2–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` are enforced safe defaults.
+Phases 0 and 1 are completed; Phase 2 is in progress; Phases 3–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` remain enforced safe defaults.
 
 ## Completed work
 
@@ -25,6 +25,11 @@ Phases 0 and 1 are completed; Phases 2–11 are pending. `TRADING_MODE=paper` an
 - Next.js 16/TypeScript strict dashboard shell with accessible navigation, health integration, safe empty states, and paper-only banner.
 - Docker Compose definitions for private PostgreSQL networking, backend, and frontend with health dependencies and named storage.
 - Backend and frontend automated checks plus locked Python/npm dependencies.
+- Phase 2A source decision and complete market-data dictionary.
+- Canonical `instruments`, `market_candles`, and `ingestion_runs` models plus Alembic revision `20260813_0002`.
+- Provider protocol, deterministic synthetic fixture, UTC normalization, validation, idempotent writes, conflict rejection, audit records, and CLI.
+- Bounded read-only coverage, instrument, candle, and ingestion-run APIs.
+- Data Status UI with loading, empty, error, coverage, audit, and unmistakable synthetic-data states.
 
 ## Verification performed
 
@@ -50,10 +55,24 @@ Phases 0 and 1 are completed; Phases 2–11 are pending. `TRADING_MODE=paper` an
 - Container logs were reviewed, and the stack was shut down cleanly.
 - The frontend container health check was corrected from IPv6-resolving `localhost` to `127.0.0.1`.
 - The frontend package lock was regenerated with Linux-compatible optional dependencies.
+- Phase 2A backend Pytest: 14 passed; third-party TestClient deprecation and sandbox Pytest-cache warnings remain.
+- Ruff lint and format checks passed for 28 Python files.
+- Alembic offline SQL generation passed through `20260813_0002`.
+- Frontend Vitest: 5 passed; ESLint, strict TypeScript, Next.js production build, and npm audit (0 vulnerabilities) passed.
+- `docker compose config --quiet` passed; Docker images built successfully.
+- Live PostgreSQL migration reported `20260813_0002 (head)`.
+- First synthetic fixture run: 8 received, 8 inserted, 0 updated/rejected. Second run: 8 received, 0 inserted/updated/rejected.
+- Live coverage API reported 4 instruments and 4 candles (spot 1, future 1, option 2), all clearly synthetic.
+- Browser verification confirmed Data Status, the exact paper-only banner, synthetic warning, coverage, and two ingestion audits.
+- All three containers reached healthy; PostgreSQL exposed no host port. Current logs showed successful health/status/coverage requests.
+- Container `ENABLE_LIVE_ORDERS=true` check exited 1 with the expected safety validation error.
+- `docker compose down` removed all containers/network; post-shutdown `docker compose ps -a` was empty.
 
 ## Current blockers
 
 - Phase 2 will require lawful access to historical option prices/quotes and confirmed data retention/licensing terms.
+- SmartAPI capabilities, especially expired-option candles, remain unverified until an authorized Phase 2B credential test.
+- The repository fixture is synthetic, is unsuitable for performance conclusions, and cannot validate provider completeness or execution realism.
 - Phase 8 will require user-provided SmartAPI credentials stored outside source control; credentials are neither needed nor permitted in Phase 0.
 - Live execution remains blocked by design until all Phase 11 gates and explicit approvals are satisfied.
 
@@ -73,9 +92,9 @@ Phases 0 and 1 are completed; Phases 2–11 are pending. `TRADING_MODE=paper` an
 
 ## Next actions
 
-1. Review and approve the completed Phase 1 foundation.
-2. Define Phase 2 historical-data acquisition and licensing constraints before implementation.
-3. Do not begin Phase 2 without explicit approval.
+1. Keep draft PR #1 open while Phase 2A awaits review and merge.
+2. Begin Phase 2B only after Phase 2A is merged.
+3. Define Phase 2B as a narrow, credentialed SmartAPI capability probe with redacted evidence and licensing review; do not add live WebSockets, feature engineering, ML, backtesting, or any trading/order capability.
 
 ## Dated progress history
 
@@ -103,3 +122,9 @@ Phases 0 and 1 are completed; Phases 2–11 are pending. `TRADING_MODE=paper` an
 - Verified the applied Alembic revision, backend health/status responses, PostgreSQL health and network isolation, dashboard safety banner, fail-closed live-order configuration, container logs, and clean shutdown.
 - Corrected the frontend health check to use IPv4 loopback and regenerated the frontend package lock for Linux container compatibility.
 - Marked Phase 1 completed. Phase 2 remains pending.
+
+### 2026-08-13 — Phase 2A market-data foundation completed
+
+- Created a provider-independent canonical schema, provider protocol, validation/idempotency services, synthetic fixture CLI, bounded read APIs, and Data Status dashboard.
+- Verified migration revision `20260813_0002`, repeat ingestion idempotency, live API/UI coverage, synthetic labeling, fail-closed safety, container logs, and clean shutdown.
+- Kept SmartAPI and all real credentials out of the implementation. Phase 2 remains in progress pending Phase 2B provider capability validation.

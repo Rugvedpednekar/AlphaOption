@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.market_data import router as market_data_router
 from app.api.routes import router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
@@ -44,3 +45,4 @@ app.add_middleware(
     allow_headers=["Accept", "Content-Type"],
 )
 app.include_router(router)
+app.include_router(market_data_router)

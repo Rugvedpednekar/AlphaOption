@@ -30,7 +30,7 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 
 ## Phase 2: Historical ingestion
 
-**Status:** Pending
+**Status:** In progress (Phase 2A completed)
 
 - **Objective:** Produce validated, point-in-time historical spot, futures, option, and reference datasets.
 - **Deliverables:** Canonical schemas, ingestion adapters, effective-dated instrument snapshots, market calendar, validators, provenance manifests, and data-quality reports.
@@ -39,7 +39,8 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 - **Acceptance criteria:** A bounded licensed sample imports deterministically with lineage and explicit quality status.
 - **Dependencies:** Phase 1 and lawful data access.
 - **Risks:** Missing bid/ask history, token changes, incomplete contract metadata, rate limits, and licensing restrictions.
-- **Completion checklist:** [ ] Schemas approved; [ ] sample ingested; [ ] validators pass; [ ] lineage recorded; [ ] limitations documented.
+- **Phase 2A limitations:** SmartAPI capabilities are currently unverified; the synthetic fixture is unsuitable for trading-performance conclusions. Phase 2B is pending an authorized capability probe and licensing review.
+- **Completion checklist:** [x] Phase 2A provider-independent schema and migration; [x] provider protocol and synthetic fixture; [x] validation and idempotent ingestion; [x] coverage APIs and Data Status UI; [x] source/licensing limitations documented; [x] host and Docker verification; [ ] Phase 2B credentialed provider capability probe; [ ] lawful real-data sample ingested; [ ] provider limitations updated from evidence.
 
 ## Phase 3: Features and labels
 

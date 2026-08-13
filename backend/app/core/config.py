@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     database_url: str = Field(
         default="postgresql+psycopg://alphaoption:alphaoption_local@db:5432/alphaoption"
     )
-    cors_origins: str = "http://localhost:3000"
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
 
     @field_validator("enable_live_orders")
     @classmethod

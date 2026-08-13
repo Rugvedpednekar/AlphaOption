@@ -35,7 +35,7 @@ Planned technology:
 
 ## Current status
 
-**Phase 1 — Local application skeleton is complete.** The FastAPI, Next.js, PostgreSQL, Alembic, Docker Compose, health/status, dashboard-shell, and automated-check foundations have passed local and full-stack container verification. SmartAPI, market data, models, strategies, backtesting, brokers, trades, and order placement remain absent. Phase 2 has not started.
+**Phase 2 — Historical ingestion is in progress; Phase 2A is complete.** The provider-independent schema, synthetic fixture ingestion, coverage APIs, and Data Status dashboard have passed host and full-stack verification. SmartAPI credentials, genuine market history, live WebSockets, models, strategies, backtesting, brokers, trades, and order placement remain absent.
 
 See:
 
@@ -76,6 +76,14 @@ docker compose run --rm backend alembic upgrade head
 docker compose run --rm backend alembic current
 ```
 
+Load the redistributable synthetic test fixture (safe to repeat):
+
+```powershell
+docker compose exec backend alphaoption-market-data load-fixture
+```
+
+The first run inserts four instruments and four candles; later identical runs insert no duplicates. Every fixture row and UI summary is labeled synthetic and is not genuine market history or performance.
+
 Open:
 
 - Dashboard: <http://localhost:3000>
@@ -83,6 +91,9 @@ Open:
 - API documentation: <http://localhost:8000/docs>
 - Health: <http://localhost:8000/api/health>
 - System status: <http://localhost:8000/api/system/status>
+- Market-data coverage: <http://localhost:8000/api/market-data/coverage>
+- Instruments: <http://localhost:8000/api/market-data/instruments>
+- Recent ingestion runs: <http://localhost:8000/api/market-data/ingestion-runs>
 
 Run backend checks with an installed Python 3.12 and `uv`:
 

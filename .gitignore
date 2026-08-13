@@ -71,7 +71,6 @@ data/processed/
 data/downloads/
 datasets/
 artifacts/models/
-models/
 checkpoints/
 artifacts/reports/
 results/

@@ -24,6 +24,9 @@ dev = [
   "ruff>=0.9,<1",
 ]
 
+[project.scripts]
+alphaoption-market-data = "app.market_data.cli:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["app"]
 
