@@ -94,6 +94,10 @@ def main(argv: list[str] | None = None) -> int:
         f"inserted={run.records_inserted} duplicates={run.records_duplicates} "
         f"rejected={run.records_rejected}"
     )
+    if isinstance(provider, SmartApiHistoricalProvider):
+        print(f"authentication_attempts={provider.authentication_attempts}")
+        print(f"provider_requests={provider.request_count}")
+        print(f"session_terminated={str(provider.session_terminated is True).lower()}")
     return 0
 
 

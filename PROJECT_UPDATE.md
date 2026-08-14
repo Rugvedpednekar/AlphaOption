@@ -4,11 +4,11 @@
 
 ## Project status
 
-Market-data foundation development. Phases 0 and 1 and subphases 2A/2B are complete. Phase 2C historical ingestion is being implemented locally with deterministic fixtures and mocked provider behavior. Nifty-specific provider results remain not-testable pending separate authorization.
+Market-data foundation development. Phases 0 and 1 and subphases 2A–2D are complete. One bounded genuine spot-index `FIVE_MINUTE` history request was authenticated, stored, and aggregate-validated locally. Broader provider and research conclusions remain out of scope.
 
 ## Current phase
 
-**Phase 2 — Historical ingestion: In progress (Phase 2C implementation)**
+**Phase 2 — Historical ingestion: In progress (Phase 2D verification complete)**
 
 Phases 0 and 1 are completed; Phase 2 is in progress; Phases 3–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` remain enforced safe defaults.
 
@@ -103,11 +103,19 @@ Phases 0 and 1 are completed; Phase 2 is in progress; Phases 3–11 are pending.
 
 ## Next actions
 
-1. Review the uncommitted Phase 2C implementation and verification evidence.
-2. Resolve provider/exchange licensing, retention, and redistribution questions before acquiring a genuine dataset.
-3. Authorize any new bounded SmartAPI probe separately; do not begin features, ML, backtesting, or trading capability.
+1. Review the uncommitted Phase 2D verification, database-path repair, aggregate evidence, and API redaction.
+2. Resolve provider/exchange licensing, retention, and redistribution questions before retaining or redistributing a larger genuine dataset.
+3. Obtain separate authorization before any further credentialed request. Do not begin features, ML, backtesting, or trading capability.
 
 The repair made zero provider requests, did not modify ignored credentials or evidence, and did not start Phase 2C.
+
+### 2026-08-13 — Phase 2D bounded historical verification completed
+
+- Authorized one bounded spot-index `FIVE_MINUTE` ingestion covering 28 calendar days through the latest completed Indian market session. The dry-run produced one deterministic chunk with zero provider calls and zero database writes; fixture execution and repeat idempotency passed first.
+- Added minimal lazy authentication and safe aggregate lifecycle reporting so authentication failures occur inside ingestion auditing and request/session totals can be reported without exposing protected data.
+- Diagnosed an earlier zero-provider failure: whole-file injection supplied a host-loopback database address inside a container. The repaired execution retains Compose service DNS and injects only named SmartAPI variables; PostgreSQL remains internal.
+- The newly authorized execution completed with one authentication attempt, one historical request, and logout. It received and inserted 1,424 rows with zero duplicates or rejections; UTC bounds, OHLCV validity, uniqueness, range containment, and accounting passed. Coverage responses no longer expose full symbols.
+- Restored `SMARTAPI_ENABLED=false`. This single ingestion establishes neither maximum retention nor futures, options, expired-contract, licensing, redistribution, backtesting, ML, or profitability conclusions. Genuine local data must not be committed.
 
 ### 2026-08-13 — Phase 2C historical ingestion started
 

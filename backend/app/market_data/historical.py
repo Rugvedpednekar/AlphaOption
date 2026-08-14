@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.market_data.provider import CandleRecord, HistoricalCandleProvider, InstrumentRecord
@@ -285,6 +285,8 @@ def ingest_history(
         category = (
             exc.category
             if isinstance(exc, HistoricalIngestionError)
+            else "database-connection-failure"
+            if isinstance(exc, SQLAlchemyError)
             else "provider-or-persistence-failure"
         )
         _commit_failure_audit(

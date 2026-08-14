@@ -44,12 +44,12 @@ export function Dashboard() {
             <StatusCard label="Backend API" value={apiValue} detail={status ? `Version ${status.application_version}` : "FastAPI on port 8000"} tone={error ? "bad" : status?.service_status === "degraded" ? "warning" : loading ? "neutral" : "good"} icon={<Activity size={20} />} />
             <StatusCard label="PostgreSQL" value={dbValue} detail="Local container database" tone={status?.database.status === "unhealthy" ? "bad" : error || loading ? "neutral" : "good"} icon={<Database size={20} />} />
             <StatusCard label="Live orders" value="Disabled" detail="No live endpoints or adapters" tone="good" icon={<CircleOff size={20} />} />
-            <StatusCard label="Market data" value="Historical foundation" detail="Fixture-only verification" icon={<WifiOff size={20} />} />
+            <StatusCard label="Market data" value="Historical foundation" detail="Genuine and fixture coverage distinguished" icon={<WifiOff size={20} />} />
             <StatusCard label="Active strategy" value="None" detail="Strategies are out of scope" icon={<Settings size={20} />} />
             <StatusCard label="Virtual capital" value="₹20,000" detail="Initial simulation assumption" tone="warning" icon={<IndianRupee size={20} />} />
             <StatusCard label="Open positions" value="None" detail="No broker implementation" tone="good" icon={<ShieldCheck size={20} />} />
           </section>
-          <section style={{ marginTop: 24, padding: 22, background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 18 }}><h2 style={{ marginTop: 0, fontSize: 17 }}>Environment note</h2><p style={{ color: "var(--muted)", lineHeight: 1.7, marginBottom: 0 }}>Historical market-data coverage is fixture-only. Strategies, models, backtests, brokers, trades, positions, and performance metrics remain intentionally absent.</p></section>
+          <section style={{ marginTop: 24, padding: 22, background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 18 }}><h2 style={{ marginTop: 0, fontSize: 17 }}>Environment note</h2><p style={{ color: "var(--muted)", lineHeight: 1.7, marginBottom: 0 }}>Historical coverage includes one bounded genuine spot-index sample plus clearly labeled fixtures. Strategies, models, backtests, brokers, trades, positions, and performance metrics remain intentionally absent.</p></section>
         </> : <EmptyState title={page} />}
       </main>
     </div>

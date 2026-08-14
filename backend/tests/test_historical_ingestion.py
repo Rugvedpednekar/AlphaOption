@@ -5,6 +5,7 @@ from decimal import Decimal
 
 import pytest
 from sqlalchemy import create_engine, func, select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
@@ -199,6 +200,33 @@ def test_failure_is_sanitized_audited_and_session_closed(session: Session) -> No
         ingest_history(session, provider, request(instrument), now=NOW)
     run = session.scalar(select(IngestionRun))
     assert run and run.status == "failed" and run.error_summary == "provider-or-persistence-failure"
+    assert provider.closed
+
+
+class FailFirstDatabaseRead:
+    def __init__(self, session: Session) -> None:
+        self.session = session
+        self.failed = False
+
+    def get(self, *args, **kwargs):
+        if not self.failed:
+            self.failed = True
+            raise SQLAlchemyError("private database connection detail")
+        return self.session.get(*args, **kwargs)
+
+    def __getattr__(self, name: str):
+        return getattr(self.session, name)
+
+
+def test_database_connection_failure_is_sanitized_and_audited(session: Session) -> None:
+    instrument = registered(session)
+    provider = RecordingProvider()
+    with pytest.raises(HistoricalIngestionError, match="database-connection-failure"):
+        ingest_history(FailFirstDatabaseRead(session), provider, request(instrument), now=NOW)
+    run = session.scalar(select(IngestionRun))
+    assert run and run.status == "failed"
+    assert run.error_summary == "database-connection-failure"
+    assert "private" not in (run.error_summary or "")
     assert provider.closed
 
 
@@ -414,8 +442,11 @@ class FakeReadOnlyAdapter:
         self.authenticated = False
         self.terminations = 0
         self.requests = 0
+        self.request_count = 0
+        self.authentication_attempts = 0
 
     def authenticate(self) -> None:
+        self.authentication_attempts += 1
         if self.fail_auth:
             raise RuntimeError("private authentication detail")
         self.authenticated = True
@@ -448,8 +479,45 @@ def smartapi_settings():
 
 def test_smartapi_authentication_failure_attempts_cleanup() -> None:
     adapter = FakeReadOnlyAdapter(fail_auth=True)
+    provider = SmartApiHistoricalProvider(smartapi_settings(), lambda _settings: adapter)
     with pytest.raises(RuntimeError, match="private authentication detail"):
-        SmartApiHistoricalProvider(smartapi_settings(), lambda _settings: adapter)
+        provider.historical_candles(
+            nifty_record(),
+            "FIVE_MINUTE",
+            datetime(2026, 8, 13, 3, 45, tzinfo=UTC),
+            datetime(2026, 8, 13, 3, 50, tzinfo=UTC),
+        )
+    provider.close()
+    assert adapter.terminations == 1
+
+
+def test_smartapi_authentication_failure_is_audited(session: Session) -> None:
+    instrument = Instrument(
+        provider="smartapi",
+        exchange="NSE",
+        token="99926000",
+        trading_symbol="NIFTY 50",
+        underlying_symbol="NIFTY",
+        instrument_type="spot",
+        expiry=None,
+        strike=None,
+        option_type=None,
+        lot_size=1,
+        tick_size=Decimal("0.05"),
+        active=True,
+        is_synthetic=False,
+    )
+    session.add(instrument)
+    session.commit()
+    adapter = FakeReadOnlyAdapter(fail_auth=True)
+    provider = SmartApiHistoricalProvider(smartapi_settings(), lambda _settings: adapter)
+    with pytest.raises(HistoricalIngestionError, match="provider-or-persistence-failure"):
+        ingest_history(session, provider, request(instrument), now=NOW)
+    run = session.scalar(select(IngestionRun).where(IngestionRun.provider == "smartapi"))
+    assert run and run.status == "failed" and run.completed_at is not None
+    assert run.error_summary == "provider-or-persistence-failure"
+    assert adapter.authentication_attempts == 1
+    assert adapter.requests == 0
     assert adapter.terminations == 1
 
 

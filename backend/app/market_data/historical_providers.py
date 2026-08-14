@@ -104,17 +104,25 @@ class SmartApiHistoricalProvider:
             raise SmartApiError("configuration-disabled")
         self._adapter = adapter_factory(settings)
         self._now = now
-        try:
-            self._adapter.authenticate()
-        except Exception:
-            self._adapter.terminate_session()
-            raise
+        self._authenticated = False
+        self.session_terminated: bool | None = None
+
+    @property
+    def request_count(self) -> int:
+        return self._adapter.request_count
+
+    @property
+    def authentication_attempts(self) -> int:
+        return self._adapter.authentication_attempts
 
     def historical_candles(
         self, instrument: InstrumentRecord, interval: str, start: datetime, end: datetime
     ) -> HistoricalBatch:
         # Historical ranges must not make an expired derivative look current.
         validate_nifty_identity(instrument, self._now())
+        if not self._authenticated:
+            self._adapter.authenticate()
+            self._authenticated = True
         step = timedelta(minutes=1 if interval == "ONE_MINUTE" else 5)
         response = self._adapter.retrieve_historical_candles(
             {
@@ -153,7 +161,7 @@ class SmartApiHistoricalProvider:
         return HistoricalBatch(tuple(rows))
 
     def close(self) -> None:
-        self._adapter.terminate_session()
+        self.session_terminated = self._adapter.terminate_session()
 
 
 def _provider_timestamp(value: str) -> datetime:
