@@ -325,6 +325,8 @@ Large data, model binaries, results, logs, and credentials must be ignored by Gi
 
 8. Market Data Architecture
 
+Phase 2C operationalizes this architecture with explicit UTC ranges, conservative deterministic chunks, sequential throttled provider calls, registered-instrument identity checks, idempotent Phase 2A storage, conflict rejection, and finalized ingestion-run audits. Its fixture source is synthetic and cannot support performance conclusions. SmartAPI historical execution remains separately authorized and disabled during automated verification.
+
 Data sources
 
 Historical underlying data

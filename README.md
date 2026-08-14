@@ -35,7 +35,7 @@ Planned technology:
 
 ## Current status
 
-**Phase 2 — Historical ingestion is in progress; Phase 2B is repaired and awaiting re-verification.** The initial probe verified authentication and general candle, OI, and FULL snapshot operations. Review found that the pinned SDK helper retrieved profile data internally and that generic-role evidence could not prove Nifty 50 derivative identity. The login-only path and exact selector are repaired offline; Nifty-specific claims require a new separately authorized bounded probe. Phase 2C has not started, and no backtesting or performance conclusion exists.
+**Phase 2 — Historical ingestion is in progress; Phases 2A and 2B are complete and Phase 2C is implemented locally for review.** The provider-independent pipeline supports interval-specific UTC chunking, deterministic fixture ingestion, validation, idempotency, conflict rejection, run audits, bounded coverage/raw-gap APIs, and dashboard states. Raw gaps include closed-market periods and are not missing-candle claims. SmartAPI remains disabled and was not contacted. Nifty-specific provider claims remain not-testable until a separately authorized probe. No backtesting or performance conclusion exists.
 
 See:
 
@@ -83,6 +83,14 @@ docker compose exec backend alphaoption-market-data load-fixture
 ```
 
 The first run inserts four instruments and four candles; later identical runs insert no duplicates. Every fixture row and UI summary is labeled synthetic and is not genuine market history or performance.
+
+Preview a historical range without provider calls or database writes:
+
+```powershell
+alphaoption-market-data ingest-history --provider fixture --instrument-id UUID --interval FIVE_MINUTE --from 2026-01-01T00:00:00Z --to 2026-01-02T00:00:00Z --dry-run
+```
+
+Fixture execution replaces `--dry-run` with `--execute` and requires an already registered instrument. SmartAPI execution remains disabled by default and requires separate authorization plus every read-only gate. See [`docs/HISTORICAL_INGESTION.md`](docs/HISTORICAL_INGESTION.md).
 
 Open:
 

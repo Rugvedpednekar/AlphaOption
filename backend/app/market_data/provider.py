@@ -38,6 +38,12 @@ class CandleRecord:
     is_synthetic: bool = False
 
 
+@dataclass(frozen=True)
+class HistoricalBatch:
+    rows: tuple[CandleRecord, ...]
+    complete: bool = True
+
+
 class MarketDataProvider(Protocol):
     name: str
     dataset: str
@@ -45,3 +51,18 @@ class MarketDataProvider(Protocol):
 
     def instruments(self) -> list[InstrumentRecord]: ...
     def candles(self) -> list[CandleRecord]: ...
+
+
+class HistoricalCandleProvider(Protocol):
+    name: str
+    is_synthetic: bool
+
+    def historical_candles(
+        self,
+        instrument: InstrumentRecord,
+        interval: str,
+        start: datetime,
+        end: datetime,
+    ) -> HistoricalBatch: ...
+
+    def close(self) -> None: ...
