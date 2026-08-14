@@ -35,7 +35,7 @@ Planned technology:
 
 ## Current status
 
-**Phase 2 — Historical ingestion is in progress; Phases 2A and 2B are complete and Phase 2C is implemented locally for review.** The provider-independent pipeline supports interval-specific UTC chunking, deterministic fixture ingestion, validation, idempotency, conflict rejection, run audits, bounded coverage/raw-gap APIs, and dashboard states. Raw gaps include closed-market periods and are not missing-candle claims. SmartAPI remains disabled and was not contacted. Nifty-specific provider claims remain not-testable until a separately authorized probe. No backtesting or performance conclusion exists.
+**Phase 2 — Historical ingestion is in progress; Phases 2A–2D are complete.** The provider-independent pipeline supports interval-specific UTC chunking, deterministic fixture ingestion, validation, idempotency, conflict rejection, run audits, bounded coverage/raw-gap APIs, and dashboard states. One separately authorized 28-calendar-day spot-index `FIVE_MINUTE` request completed and was aggregate-validated in local PostgreSQL. Raw gaps include closed-market periods and are not missing-candle claims. Genuine local data must not be committed. This single sample supports no backtesting, ML, profitability, futures, options, expired-contract, maximum-retention, licensing, or redistribution conclusion.
 
 See:
 

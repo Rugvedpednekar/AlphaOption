@@ -30,7 +30,7 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 
 ## Phase 2: Historical ingestion
 
-**Status:** In progress (Phases 2A and 2B complete; Phase 2C in progress)
+**Status:** In progress (Phases 2A–2D complete; broader lawful dataset acquisition pending)
 
 - **Objective:** Produce validated, point-in-time historical spot, futures, option, and reference datasets.
 - **Deliverables:** Canonical schemas, ingestion adapters, effective-dated instrument snapshots, market calendar, validators, provenance manifests, and data-quality reports.
@@ -40,8 +40,9 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 - **Dependencies:** Phase 1 and lawful data access.
 - **Risks:** Missing bid/ask history, token changes, incomplete contract metadata, rate limits, and licensing restrictions.
 - **Phase 2B status and limitations:** Initial evidence verifies authentication and general candle/OI/FULL operations, but review found an internal SDK profile request and an over-broad NIFTY-family selector. Both are repaired offline. Nifty-specific claims require one new separately authorized bounded probe. No backtesting or performance conclusion is supported.
-- **Phase 2C status:** Provider-independent historical orchestration, fixture and disabled-by-default SmartAPI adapters, deterministic UTC chunking, validated idempotent storage, run auditing, bounded coverage/gap APIs, CLI safety gates, and Data Status coverage are implemented locally with synthetic fixtures. No genuine provider request is authorized or made.
-- **Completion checklist:** [x] Phase 2A foundation; [x] Phase 2B adapter and safety gates published; [x] initial generic capability evidence reviewed; [x] login-only and exact Nifty selector repairs; [x] Phase 2C implementation started; [x] Phase 2C fixture-only local/container acceptance; [ ] Phase 2C review/publication; [ ] separately authorized repaired probe; [ ] lawful real-data sample ingested.
+- **Phase 2C status:** Provider-independent historical orchestration, fixture and disabled-by-default SmartAPI adapters, deterministic UTC chunking, validated idempotent storage, run auditing, bounded coverage/gap APIs, CLI safety gates, and Data Status coverage are published and fixture-verified.
+- **Phase 2D status:** One separately authorized 28-calendar-day spot-index `FIVE_MINUTE` request completed through the backend-container path. Aggregate validation confirmed 1,424 inserted rows, UTC bounds, OHLCV validity, uniqueness, range containment, and balanced auditing; profile, order, and WebSocket calls remained zero. This does not establish maximum retention or derivative availability.
+- **Completion checklist:** [x] Phase 2A foundation; [x] Phase 2B adapter and safety gates published; [x] login-only and exact Nifty selector repairs; [x] Phase 2C fixture acceptance and publication; [x] Phase 2D dry-run with zero calls/writes; [x] bounded genuine spot-index sample aggregate-validated; [ ] licensing/retention decisions for broader acquisition.
 
 ## Phase 3: Features and labels
 

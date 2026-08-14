@@ -93,6 +93,7 @@ def test_market_data_api_pagination_and_validation(session: Session) -> None:
             assert coverage.json()["instruments_stored"] == 4
             assert coverage.json()["candle_count"] == 4
             assert coverage.json()["coverage"][0]["raw_gap_count"] == 0
+            assert "trading_symbol" not in coverage.json()["coverage"][0]
             assert coverage.json()["gap_method"] == "raw_interval_slots"
             assert client.get("/api/market-data/coverage?limit=201").status_code == 422
             gaps = client.get("/api/market-data/gaps?limit=1")
@@ -103,6 +104,8 @@ def test_market_data_api_pagination_and_validation(session: Session) -> None:
             assert client.get("/api/market-data/instruments?limit=201").status_code == 422
             instrument_payload = client.get("/api/market-data/instruments?limit=1").json()
             assert "token" not in instrument_payload["items"][0]
+            assert "trading_symbol" not in instrument_payload["items"][0]
+            assert "underlying_symbol" not in instrument_payload["items"][0]
             instrument_id = instrument_payload["items"][0]["id"]
             assert (
                 client.get(

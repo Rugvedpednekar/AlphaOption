@@ -22,7 +22,7 @@ Runs record provider, bounded dataset identity, timestamps, inserted/duplicate/r
 
 ## Provider and safety gates
 
-The fixture provider requires no network. The SmartAPI adapter delegates authentication to the repaired Phase 2B profile-free login path, uses a short-lived per-instance session, processes calls sequentially, and terminates the session after success or failure. It has no order, account, profile, portfolio, or WebSocket methods. SmartAPI execution requires `SMARTAPI_ENABLED=true`, paper mode, live orders disabled, `--execute`, and `--acknowledge-read-only`. Automated verification keeps SmartAPI disabled and uses mocks only. A genuine provider request requires separate authorization.
+The fixture provider requires no network. The SmartAPI adapter delegates authentication to the repaired Phase 2B profile-free login path, authenticates only after the ingestion audit boundary is entered, uses a short-lived per-instance session, processes calls sequentially, and invokes cleanup after success or failure. It reports only safe aggregate authentication, request, and termination status. It has no order, account, profile, portfolio, or WebSocket methods. SmartAPI execution requires `SMARTAPI_ENABLED=true`, paper mode, live orders disabled, `--execute`, and `--acknowledge-read-only`. Automated verification keeps SmartAPI disabled and uses mocks only. A genuine provider request requires separate authorization.
 
 ## Known limitations
 
@@ -30,3 +30,5 @@ The fixture provider requires no network. The SmartAPI adapter delegates authent
 - Gap counts do not yet exclude exchange closures or session boundaries.
 - Fixture data does not model genuine prices, liquidity, spreads, outages, or provider corrections.
 - Synthetic fixture data cannot support profitability, backtesting, or performance conclusions.
+- One separately authorized 28-calendar-day spot-index `FIVE_MINUTE` request completed in Phase 2D and passed aggregate UTC, OHLCV, uniqueness, range, and audit checks. It establishes availability only for that bounded request, not maximum retention or derivative capability.
+- Genuine local candles, database state, raw responses, prices, and quantities must never be committed.

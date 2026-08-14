@@ -50,7 +50,6 @@ def coverage(
     groups = db.execute(
         select(
             Instrument.id,
-            Instrument.trading_symbol,
             Instrument.instrument_type,
             MarketCandle.timeframe,
             func.count(MarketCandle.id),
@@ -62,11 +61,10 @@ def coverage(
         .where(Instrument.id.in_(instrument_ids))
         .group_by(
             Instrument.id,
-            Instrument.trading_symbol,
             Instrument.instrument_type,
             MarketCandle.timeframe,
         )
-        .order_by(Instrument.trading_symbol, MarketCandle.timeframe)
+        .order_by(Instrument.instrument_type, Instrument.id, MarketCandle.timeframe)
     ).all()
     return {
         "instruments_stored": instrument_count,
@@ -81,15 +79,14 @@ def coverage(
         "coverage": [
             {
                 "instrument_id": str(item[0]),
-                "trading_symbol": item[1],
-                "instrument_type": item[2],
-                "timeframe": item[3],
-                "candle_count": item[4],
-                "first_candle": _utc(item[5]),
-                "last_candle": _utc(item[6]),
-                "raw_gap_count": _raw_gap_count(item[4], item[5], item[6], item[3]),
+                "instrument_type": item[1],
+                "timeframe": item[2],
+                "candle_count": item[3],
+                "first_candle": _utc(item[4]),
+                "last_candle": _utc(item[5]),
+                "raw_gap_count": _raw_gap_count(item[3], item[4], item[5], item[2]),
                 "gap_method": "raw_interval_slots",
-                "is_synthetic": bool(item[7]),
+                "is_synthetic": bool(item[6]),
             }
             for item in groups
         ],
@@ -153,8 +150,6 @@ def instruments(
                 "id": str(x.id),
                 "provider": x.provider,
                 "exchange": x.exchange,
-                "trading_symbol": x.trading_symbol,
-                "underlying_symbol": x.underlying_symbol,
                 "instrument_type": x.instrument_type,
                 "expiry": x.expiry,
                 "strike": x.strike,

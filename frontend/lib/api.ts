@@ -31,7 +31,7 @@ export interface MarketDataCoverage {
   contains_synthetic_data: boolean;
   scope: "paginated_instruments";
   gap_method: "raw_interval_slots";
-  coverage: Array<{ instrument_id: string; trading_symbol: string; instrument_type: string; timeframe: string; candle_count: number; first_candle: string; last_candle: string; raw_gap_count: number; gap_method: "raw_interval_slots"; is_synthetic: boolean }>;
+  coverage: Array<{ instrument_id: string; instrument_type: string; timeframe: string; candle_count: number; first_candle: string; last_candle: string; raw_gap_count: number; gap_method: "raw_interval_slots"; is_synthetic: boolean }>;
 }
 
 export interface IngestionRun {
