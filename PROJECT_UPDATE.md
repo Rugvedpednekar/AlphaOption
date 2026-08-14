@@ -4,11 +4,11 @@
 
 ## Project status
 
-Market-data foundation development. Phases 0 and 1 are complete. Phase 2 is in progress, with Phase 2A complete and Phase 2B repair under review. The initial probe verified authentication and general read-only data operations, but Nifty-specific derivative claims were withdrawn pending a separately authorized probe of the repaired selector.
+Market-data foundation development. Phases 0 and 1 and subphases 2A/2B are complete. Phase 2C historical ingestion is being implemented locally with deterministic fixtures and mocked provider behavior. Nifty-specific provider results remain not-testable pending separate authorization.
 
 ## Current phase
 
-**Phase 2 — Historical ingestion: In progress (Phase 2A complete; Phase 2B repair in progress)**
+**Phase 2 — Historical ingestion: In progress (Phase 2C implementation)**
 
 Phases 0 and 1 are completed; Phase 2 is in progress; Phases 3–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` remain enforced safe defaults.
 
@@ -103,11 +103,19 @@ Phases 0 and 1 are completed; Phase 2 is in progress; Phases 3–11 are pending.
 
 ## Next actions
 
-1. Review the completed Phase 2B diff and redacted capability report; keep all work uncommitted until publication is explicitly approved.
+1. Review the uncommitted Phase 2C implementation and verification evidence.
 2. Resolve provider/exchange licensing, retention, and redistribution questions before acquiring a genuine dataset.
-3. Do not begin Phase 2C, WebSockets, features, ML, backtesting, or trading capability without separate approval.
+3. Authorize any new bounded SmartAPI probe separately; do not begin features, ML, backtesting, or trading capability.
 
 The repair made zero provider requests, did not modify ignored credentials or evidence, and did not start Phase 2C.
+
+### 2026-08-13 — Phase 2C historical ingestion started
+
+- Merged the reviewed Phase 2B repair and synchronized `main`.
+- Added provider-independent UTC validation, deterministic chunking, fixture history, idempotent/conflict-aware storage, sanitized run audits, a gated SmartAPI historical adapter, CLI previews, bounded coverage/gap APIs, and historical Data Status states.
+- Reused the Phase 2A tables. Added only backward-compatible revision `20260813_0003` for the genuinely required ingestion duplicate audit count; no redundant market-data table was created. Verification uses fixtures and mocks only; provider requests, orders, and WebSockets remain zero.
+- Passed 65 backend tests, Ruff lint/format, offline Alembic generation, backend wheel builds (including a tracked-only export), 8 frontend tests, ESLint, strict TypeScript, Next.js production build, npm audit, Compose validation, diff and safety scans.
+- Verified an isolated healthy Compose stack at Alembic head. Fixture history inserted records once and inserted zero on an identical repeat; bounded coverage/run/gap APIs and the live Data Status view showed sanitized synthetic results. Logs were reviewed and the stack plus its test-only volume shut down cleanly.
 
 ## Dated progress history
 

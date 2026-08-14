@@ -29,13 +29,15 @@ export interface MarketDataCoverage {
   earliest_candle_timestamp: string | null;
   latest_candle_timestamp: string | null;
   contains_synthetic_data: boolean;
-  coverage: Array<{ instrument_type: string; timeframe: string; candle_count: number }>;
+  scope: "paginated_instruments";
+  gap_method: "raw_interval_slots";
+  coverage: Array<{ instrument_id: string; trading_symbol: string; instrument_type: string; timeframe: string; candle_count: number; first_candle: string; last_candle: string; raw_gap_count: number; gap_method: "raw_interval_slots"; is_synthetic: boolean }>;
 }
 
 export interface IngestionRun {
   id: string; provider: string; dataset: string; status: string; started_at: string;
   records_received: number; records_inserted: number; records_updated: number;
-  records_rejected: number; is_synthetic: boolean;
+  records_duplicates: number; records_rejected: number; completed_at?: string | null; is_synthetic: boolean;
 }
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {

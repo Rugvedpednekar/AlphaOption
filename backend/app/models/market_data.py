@@ -115,6 +115,7 @@ class IngestionRun(Base):
             "AND records_updated >= 0 AND records_rejected >= 0",
             name="ck_ingestion_counts",
         ),
+        CheckConstraint("records_duplicates >= 0", name="ck_ingestion_duplicates_nonnegative"),
     )
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     provider: Mapped[str] = mapped_column(String(40), nullable=False)
@@ -125,6 +126,9 @@ class IngestionRun(Base):
     records_received: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     records_inserted: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     records_updated: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    records_duplicates: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
     records_rejected: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     error_summary: Mapped[str | None] = mapped_column(Text)
     is_synthetic: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)

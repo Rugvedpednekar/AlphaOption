@@ -40,8 +40,14 @@ def decimal_value(value: object, field: str) -> Decimal:
 def validate_candle(record: CandleRecord) -> CandleRecord:
     if record.timeframe not in TIMEFRAMES:
         raise ValueError("unsupported timeframe")
-    if record.candle_timestamp.tzinfo is None or record.candle_timestamp.utcoffset() is None:
+    if (
+        not isinstance(record.candle_timestamp, datetime)
+        or record.candle_timestamp.tzinfo is None
+        or record.candle_timestamp.utcoffset() is None
+    ):
         raise ValueError("candle timestamp must be timezone-aware")
+    if not all(value.is_finite() for value in (record.open, record.high, record.low, record.close)):
+        raise ValueError("prices must be finite")
     if min(record.open, record.high, record.low, record.close) < 0:
         raise ValueError("prices cannot be negative")
     if record.high < max(record.open, record.close, record.low) or record.low > min(

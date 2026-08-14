@@ -94,6 +94,7 @@ def ingest_provider(session: Session, provider: MarketDataProvider) -> Ingestion
                     existing.is_synthetic,
                 ):
                     raise ValueError("duplicate candle conflicts with stored data")
+                run.records_duplicates += 1
                 continue
             session.add(
                 MarketCandle(

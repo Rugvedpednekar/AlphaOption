@@ -1,9 +1,9 @@
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, select
+from sqlalchemy import Integer, func, select
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -14,34 +14,114 @@ router = APIRouter(prefix="/api/market-data", tags=["market-data"])
 Db = Annotated[Session, Depends(get_db)]
 
 
+def _utc(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    if value.tzinfo is None or value.utcoffset() is None:
+        value = value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
+
+
 @router.get("/coverage")
-def coverage(db: Db) -> dict[str, object]:
-    instrument_count = db.scalar(select(func.count()).select_from(Instrument)) or 0
+def coverage(
+    db: Db,
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+) -> dict[str, object]:
+    instrument_ids = list(
+        db.scalars(select(Instrument.id).order_by(Instrument.id).offset(offset).limit(limit)).all()
+    )
+    instrument_count = len(instrument_ids)
     row = db.execute(
         select(
             func.count(MarketCandle.id),
             func.min(MarketCandle.candle_timestamp),
             func.max(MarketCandle.candle_timestamp),
-        )
+        ).where(MarketCandle.instrument_id.in_(instrument_ids))
     ).one()
     synthetic_count = db.scalar(
-        select(func.count()).select_from(MarketCandle).where(MarketCandle.is_synthetic.is_(True))
+        select(func.count())
+        .select_from(MarketCandle)
+        .where(
+            MarketCandle.instrument_id.in_(instrument_ids),
+            MarketCandle.is_synthetic.is_(True),
+        )
     )
     groups = db.execute(
-        select(Instrument.instrument_type, MarketCandle.timeframe, func.count(MarketCandle.id))
+        select(
+            Instrument.id,
+            Instrument.trading_symbol,
+            Instrument.instrument_type,
+            MarketCandle.timeframe,
+            func.count(MarketCandle.id),
+            func.min(MarketCandle.candle_timestamp),
+            func.max(MarketCandle.candle_timestamp),
+            func.sum(func.cast(MarketCandle.is_synthetic, Integer)),
+        )
         .join(MarketCandle)
-        .group_by(Instrument.instrument_type, MarketCandle.timeframe)
-        .order_by(Instrument.instrument_type, MarketCandle.timeframe)
+        .where(Instrument.id.in_(instrument_ids))
+        .group_by(
+            Instrument.id,
+            Instrument.trading_symbol,
+            Instrument.instrument_type,
+            MarketCandle.timeframe,
+        )
+        .order_by(Instrument.trading_symbol, MarketCandle.timeframe)
     ).all()
     return {
         "instruments_stored": instrument_count,
         "candle_count": row[0],
-        "earliest_candle_timestamp": row[1],
-        "latest_candle_timestamp": row[2],
+        "earliest_candle_timestamp": _utc(row[1]),
+        "latest_candle_timestamp": _utc(row[2]),
         "contains_synthetic_data": bool(synthetic_count),
+        "scope": "paginated_instruments",
+        "gap_method": "raw_interval_slots",
+        "offset": offset,
+        "limit": limit,
         "coverage": [
-            {"instrument_type": item[0], "timeframe": item[1], "candle_count": item[2]}
+            {
+                "instrument_id": str(item[0]),
+                "trading_symbol": item[1],
+                "instrument_type": item[2],
+                "timeframe": item[3],
+                "candle_count": item[4],
+                "first_candle": _utc(item[5]),
+                "last_candle": _utc(item[6]),
+                "raw_gap_count": _raw_gap_count(item[4], item[5], item[6], item[3]),
+                "gap_method": "raw_interval_slots",
+                "is_synthetic": bool(item[7]),
+            }
             for item in groups
+        ],
+    }
+
+
+def _raw_gap_count(
+    count: int, first: datetime | None, last: datetime | None, timeframe: str
+) -> int:
+    if not first or not last or timeframe not in {"1m", "5m"}:
+        return 0
+    seconds = 60 if timeframe == "1m" else 300
+    expected = int((last - first).total_seconds() / seconds) + 1
+    return max(expected - count, 0)
+
+
+@router.get("/gaps")
+def gaps(
+    db: Db, offset: Annotated[int, Query(ge=0)] = 0, limit: Annotated[int, Query(ge=1, le=200)] = 50
+) -> dict[str, object]:
+    result = coverage(db, offset, limit)
+    return {
+        "offset": offset,
+        "limit": limit,
+        "items": [
+            {
+                "instrument_id": row["instrument_id"],
+                "timeframe": row["timeframe"],
+                "raw_gap_count": row["raw_gap_count"],
+                "gap_method": "raw_interval_slots",
+            }
+            for row in result["coverage"]
         ],
     }
 
@@ -73,7 +153,6 @@ def instruments(
                 "id": str(x.id),
                 "provider": x.provider,
                 "exchange": x.exchange,
-                "token": x.token,
                 "trading_symbol": x.trading_symbol,
                 "underlying_symbol": x.underlying_symbol,
                 "instrument_type": x.instrument_type,
@@ -120,7 +199,7 @@ def candles(
         "items": [
             {
                 "timeframe": x.timeframe,
-                "candle_timestamp": x.candle_timestamp,
+                "candle_timestamp": _utc(x.candle_timestamp),
                 "open": x.open,
                 "high": x.high,
                 "low": x.low,
@@ -151,11 +230,12 @@ def ingestion_runs(
                 "provider": x.provider,
                 "dataset": x.dataset,
                 "status": x.status,
-                "started_at": x.started_at,
-                "completed_at": x.completed_at,
+                "started_at": _utc(x.started_at),
+                "completed_at": _utc(x.completed_at),
                 "records_received": x.records_received,
                 "records_inserted": x.records_inserted,
                 "records_updated": x.records_updated,
+                "records_duplicates": x.records_duplicates,
                 "records_rejected": x.records_rejected,
                 "error_summary": x.error_summary,
                 "is_synthetic": x.is_synthetic,
