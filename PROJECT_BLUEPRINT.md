@@ -553,6 +553,27 @@ Missingness should be modeled explicitly where meaningful.
 
 Feature definitions must be versioned.
 
+Phase 3 initial implementation scope
+
+The first implemented feature set is deliberately narrower than the long-term catalog. It
+accepts one registered, source-homogeneous Nifty 50 `FIVE_MINUTE` candle series with
+explicit UTC bounds. A row becomes available only after its candle closes. It includes
+lagged simple/log returns, candle shape, EMA 9/21 and slopes, Wilder RSI 14 and ATR 14,
+rolling log-return volatility, volume normalization, and Asia/Kolkata session encodings.
+Unavailable warm-up values remain null; prices are never interpolated.
+
+Experimental targets are stored distinctly from model-input columns. Fifteen- and
+thirty-minute future returns use three/six bars ahead and `up`, `down`, or `neutral` under
+the point-in-time threshold `max(0.001, 0.5 * ATR14 / close)`. Targets cannot cross raw
+five-minute gaps or Asia/Kolkata trading dates and are unavailable at the dataset tail.
+Target construction is not evidence of profitability.
+
+Alembic revision `20260813_0004` adds normalized `feature_runs` and `market_features`
+tables with deterministic configuration hashes, source labels, idempotent uniqueness, and
+failure auditing. Bounded read-only APIs and the Feature Status dashboard expose aggregate
+availability. Black-Scholes, Greeks, PCR, option-chain, synthetic-option, model, backtest,
+signal, and trading work remain outside Phase 3.
+
 11. Black–Scholes and Options Mathematics
 
 Black–Scholes–Merton may be used for:

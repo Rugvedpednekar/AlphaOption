@@ -48,3 +48,18 @@ async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
 
 export const fetchMarketDataCoverage = (signal?: AbortSignal) => getJson<MarketDataCoverage>("/api/market-data/coverage", signal);
 export const fetchIngestionRuns = (signal?: AbortSignal) => getJson<{ items: IngestionRun[] }>("/api/market-data/ingestion-runs?limit=10", signal);
+
+export interface FeatureCoverageItem {
+  instrument_id: string; interval: "5m"; feature_version: string;
+  source_classification: "genuine" | "synthetic"; total_candles: number;
+  usable_rows: number; warmup_rows: number; first_timestamp: string; last_timestamp: string;
+  target_15m_rows: number; target_30m_rows: number;
+}
+export interface FeatureRun { id: string; status: string; feature_version: string; source_classification: "genuine" | "synthetic"; }
+export interface FeatureAvailability { model_input_null_counts: Record<string, number>; target_null_counts: Record<string, number>; invalid_count: number; }
+export interface TargetDistribution { distribution: { "15m": { up: number; down: number; neutral: number }; "30m": { up: number; down: number; neutral: number } }; }
+
+export const fetchFeatureCoverage = (signal?: AbortSignal) => getJson<{ items: FeatureCoverageItem[] }>("/api/features/coverage?limit=20", signal);
+export const fetchFeatureRuns = (signal?: AbortSignal) => getJson<{ items: FeatureRun[] }>("/api/features/runs?limit=10", signal);
+export const fetchFeatureAvailability = (instrumentId: string, version: string, signal?: AbortSignal) => getJson<FeatureAvailability>(`/api/features/availability?instrument_id=${encodeURIComponent(instrumentId)}&feature_version=${encodeURIComponent(version)}`, signal);
+export const fetchTargetDistribution = (instrumentId: string, version: string, signal?: AbortSignal) => getJson<TargetDistribution>(`/api/features/target-distribution?instrument_id=${encodeURIComponent(instrumentId)}&feature_version=${encodeURIComponent(version)}`, signal);

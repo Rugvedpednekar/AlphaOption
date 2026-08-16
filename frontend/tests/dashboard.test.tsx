@@ -58,3 +58,38 @@ describe("Data Status", () => {
     expect(screen.getByText(/not confirmed missing market candles/)).toBeInTheDocument();
   });
 });
+
+describe("Feature Status", () => {
+  it("shows loading, empty, and error states", async () => {
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+    const loading = render(<Dashboard />);
+    fireEvent.click(screen.getByRole("button", { name: "Feature Status" }));
+    expect(screen.getByText("Loading feature status…")).toBeInTheDocument();
+    loading.unmount();
+
+    vi.stubGlobal("fetch", vi.fn((url: string) => Promise.resolve({ ok: true, json: async () => url.includes("/api/features/") ? { items: [] } : { service_status: "healthy", application_version: "0.1.0", operating_mode: "paper", live_orders_enabled: false, database: { status: "healthy" }, timestamp_utc: "2026-08-13T00:00:00Z", market_timezone: "Asia/Kolkata" } })));
+    const empty = render(<Dashboard />);
+    fireEvent.click(screen.getByRole("button", { name: "Feature Status" }));
+    expect(await screen.findByText("No feature rows have been built.")).toBeInTheDocument();
+    empty.unmount();
+
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+    render(<Dashboard />);
+    fireEvent.click(screen.getByRole("button", { name: "Feature Status" }));
+    expect(await screen.findByText("Feature status is unavailable.")).toBeInTheDocument();
+  });
+
+  it("shows leakage safety, aggregates, and synthetic warning", async () => {
+    const coverage = { items: [{ instrument_id: "fixture-id", interval: "5m", feature_version: "v1", source_classification: "synthetic", total_candles: 50, usable_rows: 14, warmup_rows: 36, first_timestamp: "2026-08-13T03:45:00Z", last_timestamp: "2026-08-13T07:50:00Z", target_15m_rows: 34, target_30m_rows: 31 }] };
+    const run = { items: [{ id: "run", status: "completed", feature_version: "v1", source_classification: "synthetic" }] };
+    const availability = { model_input_null_counts: { ema_21: 20 }, target_null_counts: {}, invalid_count: 0 };
+    const distribution = { distribution: { "15m": { up: 1, down: 2, neutral: 31 }, "30m": { up: 1, down: 1, neutral: 29 } } };
+    vi.stubGlobal("fetch", vi.fn((url: string) => Promise.resolve({ ok: true, json: async () => url.includes("features/coverage") ? coverage : url.includes("features/runs") ? run : url.includes("availability") ? availability : url.includes("target-distribution") ? distribution : { service_status: "healthy", application_version: "0.1.0", operating_mode: "paper", live_orders_enabled: false, database: { status: "healthy" }, timestamp_utc: "2026-08-13T00:00:00Z", market_timezone: "Asia/Kolkata" } })));
+    render(<Dashboard />);
+    fireEvent.click(screen.getByRole("button", { name: "Feature Status" }));
+    expect(await screen.findByText("SYNTHETIC FEATURE DATA")).toBeInTheDocument();
+    expect(screen.getByText(/Each model input uses completed candles/)).toBeInTheDocument();
+    expect(screen.getByText(/No ML model or backtest exists yet/)).toBeInTheDocument();
+    expect(screen.getByText(/up 1, down 2, neutral 31/)).toBeInTheDocument();
+  });
+});
