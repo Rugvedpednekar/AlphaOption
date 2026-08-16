@@ -31,6 +31,7 @@ dev = [
 [project.scripts]
 alphaoption-market-data = "app.market_data.cli:main"
 alphaoption-smartapi = "app.smartapi.cli:main"
+alphaoption-features = "app.features.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["app"]

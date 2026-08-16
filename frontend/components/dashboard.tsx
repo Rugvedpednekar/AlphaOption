@@ -6,8 +6,9 @@ import { EmptyState } from "@/components/empty-state";
 import { StatusCard } from "@/components/status-card";
 import { fetchSystemStatus, type SystemStatus } from "@/lib/api";
 import { DataStatus } from "@/components/data-status";
+import { FeatureStatus } from "@/components/feature-status";
 
-const navigation = ["Overview", "Data Status", "Backtests", "Market Replay", "Paper Trading", "Trades", "System Health", "Settings"] as const;
+const navigation = ["Overview", "Data Status", "Feature Status", "Backtests", "Market Replay", "Paper Trading", "Trades", "System Health", "Settings"] as const;
 type Page = (typeof navigation)[number];
 
 export function Dashboard() {
@@ -36,7 +37,7 @@ export function Dashboard() {
       <main style={{ padding: "28px clamp(22px,4vw,64px) 60px", overflow: "hidden" }}>
         <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, marginBottom: 24 }}><div><p style={{ color: "var(--mint)", margin: 0, fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>Local research environment</p><h1 style={{ fontSize: 34, margin: "6px 0" }}>{page}</h1></div><span style={{ padding: "9px 13px", borderRadius: 999, border: "1px solid var(--line)", color: "var(--muted)", fontSize: 13 }}>Asia/Kolkata</span></header>
         <div role="status" style={{ background: "linear-gradient(90deg, rgba(240,184,91,.18), rgba(240,184,91,.06))", border: "1px solid rgba(240,184,91,.44)", color: "#ffd28b", borderRadius: 14, padding: "14px 18px", fontWeight: 800, letterSpacing: ".06em", marginBottom: 28 }}>PAPER TRADING — NO REAL ORDERS</div>
-        {page === "Data Status" ? <DataStatus /> : (page === "Overview" || healthPage) ? <>
+        {page === "Data Status" ? <DataStatus /> : page === "Feature Status" ? <FeatureStatus /> : (page === "Overview" || healthPage) ? <>
           {error && <div role="alert" style={{ color: "#ffd0d0", background: "rgba(255,123,123,.1)", border: "1px solid rgba(255,123,123,.3)", padding: 14, borderRadius: 12, marginBottom: 18 }}>Backend unavailable. The dashboard remains read-only; no trading action is possible.</div>}
           {!error && status?.database.status === "unhealthy" && <div role="alert" style={{ color: "#ffd28b", background: "rgba(240,184,91,.1)", border: "1px solid rgba(240,184,91,.3)", padding: 14, borderRadius: 12, marginBottom: 18 }}>PostgreSQL is unhealthy. Backend status is degraded.</div>}
           <section aria-label="System status" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: 16 }}>

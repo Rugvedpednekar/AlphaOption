@@ -46,16 +46,16 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 
 ## Phase 3: Features and labels
 
-**Status:** Pending
+**Status:** In progress
 
-- **Objective:** Build versioned, point-in-time features and economically meaningful labels.
-- **Deliverables:** Feature registry, label definitions, dataset builder, manifests/hashes, missing-data policy, and leakage guards.
-- **Detailed tasks:** Implement underlying, option-chain, time, and regime features; define neutral-zone/triple-barrier/direct-option-return labels; record horizons, execution delay, and costs.
-- **Tests and verification:** Timestamp boundary tests, same-bar execution safeguards, train-only transformation tests, deterministic rebuilds, and no-lookahead assertions.
-- **Acceptance criteria:** Identical input/configuration produces identical datasets; every feature and label has availability and lineage metadata.
-- **Dependencies:** Phase 2 and agreed cost/horizon policies.
-- **Risks:** Look-ahead leakage, sparse contracts, survivorship bias, revised data, unstable labels.
-- **Completion checklist:** [ ] Features versioned; [ ] labels versioned; [ ] leakage tests pass; [ ] dataset hash stable; [ ] limitations recorded.
+- **Objective:** Build deterministic, versioned, point-in-time features and separately stored experimental targets from completed Nifty 50 five-minute candles.
+- **Deliverables:** Normalized feature/run tables and migration `20260813_0004`; pure feature engine; CLI; bounded read-only APIs; Feature Status dashboard; formulas and leakage documentation.
+- **Detailed tasks:** Validate one source-homogeneous registered instrument and UTC range; calculate return, candle-shape, EMA, Wilder RSI/ATR, volatility, volume, and Asia/Kolkata session inputs; create 15/30-minute three-class targets without crossing raw gaps or sessions; persist hashes and audits idempotently.
+- **Tests and verification:** Exact indicator fixtures, rolling and timezone tests, no-future-input regression, target alignment/gap/tail tests, failure audit and rerun tests, migration cycle, bounded API/dashboard states, and genuine local aggregate verification when available.
+- **Acceptance criteria:** Every model input uses information available at candle close; targets cannot enter model inputs; null warm-up/tails are preserved; repeated builds create no duplicates; source candles remain unchanged; APIs remain bounded and clearly label source.
+- **Dependencies:** Completed Phase 2D historical ingestion and registered five-minute candles.
+- **Risks:** Look-ahead leakage, incomplete session calendar, raw gaps, revised source data, unstable experimental labels, and insufficient sample size.
+- **Completion checklist:** [x] normalized schema designed; [x] inputs and targets separated; [x] leakage regression added; [x] CLI/API/dashboard implemented; [x] full local and migration verification completed; [ ] implementation reviewed and published.
 
 ## Phase 4: Baseline modeling
 

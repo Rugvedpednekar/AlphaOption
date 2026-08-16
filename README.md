@@ -35,7 +35,7 @@ Planned technology:
 
 ## Current status
 
-**Phase 2 — Historical ingestion is in progress; Phases 2A–2D are complete.** The provider-independent pipeline supports interval-specific UTC chunking, deterministic fixture ingestion, validation, idempotency, conflict rejection, run audits, bounded coverage/raw-gap APIs, and dashboard states. One separately authorized 28-calendar-day spot-index `FIVE_MINUTE` request completed and was aggregate-validated in local PostgreSQL. Raw gaps include closed-market periods and are not missing-candle claims. Genuine local data must not be committed. This single sample supports no backtesting, ML, profitability, futures, options, expired-contract, maximum-retention, licensing, or redistribution conclusion.
+**Phase 3 — Leakage-safe feature engineering is complete.** Completed, source-homogeneous Nifty 50 `FIVE_MINUTE` candles can be transformed into versioned point-in-time model inputs and separately stored experimental 15/30-minute targets. Warm-up and target-tail nulls are preserved, targets cannot cross raw gaps or trading dates, and reruns are idempotent. The Feature Status UI and bounded APIs show aggregate availability without claiming model or trading performance. No ML model or backtest exists.
 
 See:
 
@@ -43,6 +43,7 @@ See:
 - [`implementation_plan.md`](implementation_plan.md) — Phases 0–11 with gates and checklists
 - [`PROJECT_UPDATE.md`](PROJECT_UPDATE.md) — living status and progress history
 - [`SECURITY.md`](SECURITY.md) — secret handling and paper/live isolation
+- [`docs/FEATURE_ENGINEERING.md`](docs/FEATURE_ENGINEERING.md) — Phase 3 formulas, timing, targets, versioning, and leakage safeguards
 
 ## Local-development roadmap
 

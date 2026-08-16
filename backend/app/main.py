@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.features import router as features_router
 from app.api.market_data import router as market_data_router
 from app.api.routes import router
 from app.core.config import get_settings
@@ -46,3 +47,4 @@ app.add_middleware(
 )
 app.include_router(router)
 app.include_router(market_data_router)
+app.include_router(features_router)

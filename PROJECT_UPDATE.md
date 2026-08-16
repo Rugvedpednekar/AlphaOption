@@ -4,13 +4,13 @@
 
 ## Project status
 
-Market-data foundation development. Phases 0 and 1 and subphases 2A–2D are complete. One bounded genuine spot-index `FIVE_MINUTE` history request was authenticated, stored, and aggregate-validated locally. Broader provider and research conclusions remain out of scope.
+Leakage-safe feature engineering is complete. Phases 0–3 are complete on the bounded local five-minute candle foundation. Broader provider, model, backtest, and performance conclusions remain out of scope.
 
 ## Current phase
 
-**Phase 2 — Historical ingestion: In progress (Phase 2D verification complete)**
+**Phase 3 — Features and targets: Complete**
 
-Phases 0 and 1 are completed; Phase 2 is in progress; Phases 3–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` remain enforced safe defaults.
+Phases 0–3 are completed; Phases 4–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` remain enforced safe defaults.
 
 ## Completed work
 
@@ -103,9 +103,18 @@ Phases 0 and 1 are completed; Phase 2 is in progress; Phases 3–11 are pending.
 
 ## Next actions
 
-1. Review the uncommitted Phase 2D verification, database-path repair, aggregate evidence, and API redaction.
+1. Stop after Phase 3; begin Phase 4 only after a separate scope and correctness review.
 2. Resolve provider/exchange licensing, retention, and redistribution questions before retaining or redistributing a larger genuine dataset.
-3. Obtain separate authorization before any further credentialed request. Do not begin features, ML, backtesting, or trading capability.
+3. Do not begin ML, backtesting, or trading capability without separate authorization.
+
+### 2026-08-13 — Phase 3 leakage-safe feature engineering completed
+
+- Added normalized feature-run and feature-row persistence through proposed Alembic revision `20260813_0004`, including deterministic configuration hashes and separate model-input and target columns.
+- Added completed-candle eligibility, strict source separation, transparent returns/EMA/Wilder RSI/Wilder ATR/volatility/volume/session features, null warm-up policy, and explicit no-future-input regression coverage.
+- Added experimental 15/30-minute targets with a point-in-time ATR threshold, gap/session barriers, null tails, and no profitability claim.
+- Added a repeat-safe CLI, bounded read-only APIs, a Feature Status dashboard, and detailed formula/timing documentation. No provider request, model, backtest, signal, or execution path was added.
+- Verified Alembic upgrade/downgrade/re-upgrade through `20260813_0004`. Against the existing genuine local sample, dry-run found 1,424 eligible candles with zero writes; the first build created 1,424 feature rows and the repeat created zero while skipping all 1,424 existing rows. The source-candle fingerprint remained unchanged.
+- Aggregate verification found 1,388 usable rows, 36 warm-up rows, 1,343 available 15-minute targets, and 1,283 available 30-minute targets. Null target counts include session/gap barriers as well as the final target tails. All five bounded feature APIs and the live dashboard responded successfully. These are previously observed local aggregate counts; the final review did not independently reproduce them because genuine candles are intentionally not stored in Git.
 
 The repair made zero provider requests, did not modify ignored credentials or evidence, and did not start Phase 2C.
 
