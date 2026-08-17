@@ -574,6 +574,22 @@ failure auditing. Bounded read-only APIs and the Feature Status dashboard expose
 availability. Black-Scholes, Greeks, PCR, option-chain, synthetic-option, model, backtest,
 signal, and trading work remain outside Phase 3.
 
+Phase 4 historical expansion and dataset-quality scope
+
+Before modeling, genuine Nifty 50 spot `FIVE_MINUTE` coverage may be expanded through a
+resumable, sequential, maximum-60-request backfill. Durable run/chunk audits record exact
+half-open bounds, sanitized outcomes, observed-empty chunks, and partial progress without
+storing provider payloads. No retry, interpolation, derivative, one-minute, or trading path
+is included.
+
+Dataset quality is reported only as aggregates under a documented regular-session
+structural assumption: Asia/Kolkata 09:15–15:30 with 75 expected five-minute starts through
+15:25. It is not an official exchange calendar, and zero-row dates are not inferred to be
+holidays or missing sessions. Readiness categories based on complete observed sessions are
+conservative prerequisites for possible later research, not evidence of predictability or
+profitability. Provider access does not establish storage, licensing, or redistribution
+rights.
+
 11. Black–Scholes and Options Mathematics
 
 Black–Scholes–Merton may be used for:

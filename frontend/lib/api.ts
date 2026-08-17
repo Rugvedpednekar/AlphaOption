@@ -63,3 +63,17 @@ export const fetchFeatureCoverage = (signal?: AbortSignal) => getJson<{ items: F
 export const fetchFeatureRuns = (signal?: AbortSignal) => getJson<{ items: FeatureRun[] }>("/api/features/runs?limit=10", signal);
 export const fetchFeatureAvailability = (instrumentId: string, version: string, signal?: AbortSignal) => getJson<FeatureAvailability>(`/api/features/availability?instrument_id=${encodeURIComponent(instrumentId)}&feature_version=${encodeURIComponent(version)}`, signal);
 export const fetchTargetDistribution = (instrumentId: string, version: string, signal?: AbortSignal) => getJson<TargetDistribution>(`/api/features/target-distribution?instrument_id=${encodeURIComponent(instrumentId)}&feature_version=${encodeURIComponent(version)}`, signal);
+
+export interface BackfillRun {
+  id: string; status: string; provider: string; planned_chunks: number;
+  successful_chunks: number; empty_chunks: number; skipped_chunks: number; failed_chunks: number;
+}
+export interface DatasetQuality {
+  observed_start: string | null; observed_end: string | null; total_candles: number;
+  observed_trading_dates: number; genuine_count: number; synthetic_count: number;
+  internal_five_minute_gap_count: number; complete_sessions: number; partial_sessions: number;
+  non_regular_sessions: number; ml_readiness: string; regular_session_assumption: string;
+  monthly: Array<{ month: string; candles: number; observed_sessions: number; complete_sessions: number; partial_sessions: number }>;
+}
+export const fetchBackfillRuns = (signal?: AbortSignal) => getJson<{ items: BackfillRun[] }>("/api/market-data/backfill-runs?limit=10", signal);
+export const fetchDatasetQuality = (instrumentId: string, signal?: AbortSignal) => getJson<DatasetQuality>(`/api/market-data/dataset-quality?instrument_id=${encodeURIComponent(instrumentId)}&session_limit=1`, signal);

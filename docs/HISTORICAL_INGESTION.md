@@ -32,3 +32,26 @@ The fixture provider requires no network. The SmartAPI adapter delegates authent
 - Synthetic fixture data cannot support profitability, backtesting, or performance conclusions.
 - One separately authorized 28-calendar-day spot-index `FIVE_MINUTE` request completed in Phase 2D and passed aggregate UTC, OHLCV, uniqueness, range, and audit checks. It establishes availability only for that bounded request, not maximum retention or derivative capability.
 - Genuine local candles, database state, raw responses, prices, and quantities must never be committed.
+
+## Phase 4 resumable expansion
+
+`alphaoption-market-data backfill-history` is restricted to the exact registered Nifty 50
+spot instrument and `FIVE_MINUTE`. It plans oldest-to-newest half-open 30-day UTC chunks,
+keeps at most the newest 60, performs sequential calls with at least 1.1 seconds between
+them, uses one provider session, never retries, and always closes the session. Dry-run
+validates the stored instrument and plan with zero network calls and zero writes.
+
+Revision `20260813_0005` adds only durable aggregate `backfill_runs` and per-boundary
+`backfill_chunks`. Completed and observed-empty chunks are skipped on later runs; interrupted
+or failed chunks can resume. Each successful chunk commits independently, so a later
+provider/configuration/persistence failure preserves earlier chunks and stores only a
+sanitized failure category. An empty response is an observed empty chunk, not proof of a
+holiday or provider retention boundary.
+
+The 2026-08-16 authorized execution used 57 sequential historical requests covering
+`2022-01-01T03:45:00Z` through `2026-08-14T10:00:00Z`. One profile-free authentication,
+57 historical calls, and one logout completed; session termination was confirmed. All 57
+chunks completed with zero empty/skipped/failed chunks. Aggregate accounting was 85,446
+received, 84,022 inserted, 1,424 identical duplicates, and zero rejected. These local
+observations establish neither provider retention guarantees nor storage, licensing, or
+redistribution rights.

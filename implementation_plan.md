@@ -46,7 +46,7 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 
 ## Phase 3: Features and labels
 
-**Status:** In progress
+**Status:** Complete
 
 - **Objective:** Build deterministic, versioned, point-in-time features and separately stored experimental targets from completed Nifty 50 five-minute candles.
 - **Deliverables:** Normalized feature/run tables and migration `20260813_0004`; pure feature engine; CLI; bounded read-only APIs; Feature Status dashboard; formulas and leakage documentation.
@@ -57,18 +57,18 @@ This plan implements the roadmap in `PROJECT_BLUEPRINT.md`. Status values are in
 - **Risks:** Look-ahead leakage, incomplete session calendar, raw gaps, revised source data, unstable experimental labels, and insufficient sample size.
 - **Completion checklist:** [x] normalized schema designed; [x] inputs and targets separated; [x] leakage regression added; [x] CLI/API/dashboard implemented; [x] full local and migration verification completed; [ ] implementation reviewed and published.
 
-## Phase 4: Baseline modeling
+## Phase 4: Historical data expansion and dataset quality
 
-**Status:** Pending
+**Status:** In progress
 
-- **Objective:** Evaluate `CALL`, `PUT`, and `NO_TRADE` decisions honestly against credible baselines.
-- **Deliverables:** No-trade/random/rule/logistic/tree baselines, purged walk-forward splitter with embargo, calibration pipeline, experiment registry, and untouched holdout policy.
-- **Detailed tasks:** Fit preprocessing inside folds; compare balanced classification and economic metrics; tune thresholds on validation periods only; record every experiment.
-- **Tests and verification:** Split-overlap and embargo tests, repeatability checks, training-only preprocessing assertions, metric fixtures, and calibration checks.
-- **Acceptance criteria:** Results are reported across chronological folds and costs, with no shuffled cross-validation and no final-holdout tuning.
-- **Dependencies:** Phase 3.
-- **Risks:** Overfitting, multiple testing, class imbalance, regime dependence, and misleading accuracy.
-- **Completion checklist:** [ ] Baselines run; [ ] walk-forward verified; [ ] calibration assessed; [ ] holdout preserved; [ ] results documented.
+- **Objective:** Expand genuine Nifty 50 spot five-minute history safely and assess structural dataset quality before any modeling.
+- **Deliverables:** Resumable 30-day backfill orchestration, migration `20260813_0005`, durable chunk audits, aggregate quality/readiness service, bounded APIs, Dataset Quality dashboard, and documentation.
+- **Detailed tasks:** Enforce exact spot identity, maximum 60 sequential requests, no retries, resumable chunk commits, genuine/synthetic separation, regular-session structural summaries, monthly aggregation, and conservative readiness categories.
+- **Tests and verification:** Chunk limits, resume/skip, cleanup/failure preservation, empty observations, complete/partial sessions, raw gaps, monthly/readiness thresholds, APIs/dashboard, Compose migration/connectivity, fixture repeat, and dry-run before any provider contact.
+- **Acceptance criteria:** No genuine data enters Git; empty chunks are not interpreted; all public output is aggregate; provider execution occurs only after every local gate; no ML or performance claim is made.
+- **Dependencies:** Completed Phases 2 and 3.
+- **Risks:** Provider retention/rate limits, licensing uncertainty, unofficial calendar assumptions, partial/special sessions, Docker availability, and insufficient complete sessions.
+- **Completion checklist:** [x] orchestration/schema/service implemented; [x] focused fixture tests; [x] Compose/database and reversible migration gates; [x] authorized 57-request backfill; [x] aggregate post-verification; [ ] optional Phase 3 expanded feature rebuild blocked by non-regular observed sessions without changing Phase 3 policy.
 
 ## Phase 5: Options backtester
 

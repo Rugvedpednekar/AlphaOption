@@ -35,7 +35,7 @@ Planned technology:
 
 ## Current status
 
-**Phase 3 — Leakage-safe feature engineering is complete.** Completed, source-homogeneous Nifty 50 `FIVE_MINUTE` candles can be transformed into versioned point-in-time model inputs and separately stored experimental 15/30-minute targets. Warm-up and target-tail nulls are preserved, targets cannot cross raw gaps or trading dates, and reruns are idempotent. The Feature Status UI and bounded APIs show aggregate availability without claiming model or trading performance. No ML model or backtest exists.
+**Phase 4 — Historical data expansion and dataset quality is runtime-verified.** The authorized Nifty 50 spot `FIVE_MINUTE` backfill collected 85,446 genuine candles from 2022-01-03 through 2026-08-14 across 1,145 observed dates. Aggregate structural quality found 1,128 complete regular sessions, 14 partial regular sessions, 3 non-regular observed sessions, and 16 internal gaps, none aligned with chunk boundaries. Nine chunks returned exactly 1,500 rows, but 29 exceeded 1,500 and the maximum was 1,725, so the aggregate evidence does not support a 1,500-row response ceiling. All historical index volume values are zero, making volume-derived features unavailable for this dataset; expanded feature generation failed closed because non-regular sessions need an explicit policy. ML readiness applies only to dataset size and coverage, not feature readiness, predictability, or profitability. Licensing, storage, and redistribution rights remain unresolved. No ML model, prediction, backtest, trade, or performance result exists.
 
 See:
 
@@ -44,6 +44,7 @@ See:
 - [`PROJECT_UPDATE.md`](PROJECT_UPDATE.md) — living status and progress history
 - [`SECURITY.md`](SECURITY.md) — secret handling and paper/live isolation
 - [`docs/FEATURE_ENGINEERING.md`](docs/FEATURE_ENGINEERING.md) — Phase 3 formulas, timing, targets, versioning, and leakage safeguards
+- [`docs/DATASET_QUALITY.md`](docs/DATASET_QUALITY.md) — Phase 4 structural quality and conservative readiness rules
 
 ## Local-development roadmap
 

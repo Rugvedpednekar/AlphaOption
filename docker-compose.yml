@@ -22,6 +22,12 @@ services:
       TRADING_MODE: ${TRADING_MODE:-paper}
       ENABLE_LIVE_ORDERS: "false"
       MARKET_TIMEZONE: Asia/Kolkata
+      SMARTAPI_ENABLED: ${SMARTAPI_ENABLED:-false}
+      SMARTAPI_API_KEY: ${SMARTAPI_API_KEY:-}
+      SMARTAPI_CLIENT_CODE: ${SMARTAPI_CLIENT_CODE:-}
+      SMARTAPI_PIN: ${SMARTAPI_PIN:-}
+      SMARTAPI_TOTP_SECRET: ${SMARTAPI_TOTP_SECRET:-}
+      SMARTAPI_API_SECRET: ${SMARTAPI_API_SECRET:-}
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-alphaoption}:${POSTGRES_PASSWORD:-alphaoption_local}@db:5432/${POSTGRES_DB:-alphaoption}
       CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
     command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

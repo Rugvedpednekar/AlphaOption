@@ -105,6 +105,7 @@ class SmartApiHistoricalProvider:
         self._adapter = adapter_factory(settings)
         self._now = now
         self._authenticated = False
+        self.historical_request_count = 0
         self.session_terminated: bool | None = None
 
     @property
@@ -134,6 +135,7 @@ class SmartApiHistoricalProvider:
                 "todate": (end - step).strftime("%Y-%m-%d %H:%M"),
             }
         )
+        self.historical_request_count += 1
         data = response.get("data")
         if not response.get("status") or not isinstance(data, list):
             raise SmartApiError("provider-invalid-response")
