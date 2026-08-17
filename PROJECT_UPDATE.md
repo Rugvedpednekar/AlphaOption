@@ -1,16 +1,16 @@
 # AlphaOption Project Update
 
-**Last updated:** 2026-08-13
+**Last updated:** 2026-08-16
 
 ## Project status
 
-Leakage-safe feature engineering is complete. Phases 0–3 are complete on the bounded local five-minute candle foundation. Broader provider, model, backtest, and performance conclusions remain out of scope.
+Historical data expansion and dataset-quality work is runtime-verified. Phases 0–3 are complete and the Phase 4 authorized backfill completed. Model, backtest, and performance conclusions remain out of scope.
 
 ## Current phase
 
-**Phase 3 — Features and targets: Complete**
+**Phase 4 — Historical expansion and dataset quality: Runtime verified**
 
-Phases 0–3 are completed; Phases 4–11 are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` remain enforced safe defaults.
+Phases 0–3 are completed; Phase 4 is in progress; later modeling and trading phases are pending. `TRADING_MODE=paper` and `ENABLE_LIVE_ORDERS=false` remain enforced safe defaults.
 
 ## Completed work
 
@@ -103,9 +103,27 @@ Phases 0–3 are completed; Phases 4–11 are pending. `TRADING_MODE=paper` and 
 
 ## Next actions
 
-1. Stop after Phase 3; begin Phase 4 only after a separate scope and correctness review.
-2. Resolve provider/exchange licensing, retention, and redistribution questions before retaining or redistributing a larger genuine dataset.
-3. Do not begin ML, backtesting, or trading capability without separate authorization.
+1. Review the uncommitted Phase 4 implementation and observed aggregate evidence.
+2. Resolve how non-regular observed sessions should be handled before any expanded Phase 3 feature rebuild; do not change existing formulas or eligibility policy implicitly.
+3. Resolve provider/exchange licensing, retention, and redistribution questions; do not begin ML, backtesting, or trading capability.
+
+### 2026-08-16 — Phase 4 implementation; provider gate blocked
+
+- Added exact-spot, five-minute-only resumable backfill planning and execution with 30-day chunks, a 60-request cap, durable chunk/run audits, no retries, per-chunk commits, observed-empty classification, and unconditional provider cleanup.
+- Added aggregate dataset-quality/readiness analysis, bounded APIs, and Dataset Quality dashboard states without exposing individual prices or quantities.
+- Added Alembic revision `20260813_0005` because existing ingestion audits do not store chunk bounds required for safe resume and covered-chunk skipping.
+- Focused fixture tests passed. The mandatory Compose gate could not start because the Docker Desktop Linux engine was unavailable; therefore database migration/connectivity, fixture execution, dry-run, and the authorized credentialed backfill were not attempted. SmartAPI calls remained zero and `.env` remained unchanged with `SMARTAPI_ENABLED=false`.
+
+### 2026-08-16 — Phase 4 runtime verification and authorized backfill completed
+
+- Diagnosed the PostgreSQL authentication mismatch as an automatically loaded `.env` placeholder overriding unchanged `main` Compose fallbacks. Using an empty ignored interpolation file restored the established database semantics; no role, password, database, schema, table, or volume state changed.
+- Preserved the original named volume and verified aggregate counts before and after the reversible `20260813_0005 → 20260813_0004 → 20260813_0005` migration cycle. PostgreSQL remained internal-only and the full stack became healthy.
+- Runtime fixture verification inserted 12 rows once, inserted zero on repeat, skipped the covered chunk, classified one empty chunk, and preserved one successful chunk before a sanitized synthetic failure.
+- The authorized genuine run completed 57 sequential chunks with one authentication, 57 historical calls, one logout, and confirmed termination. It received 85,446 rows, inserted 84,022, recognized 1,424 duplicates, and rejected zero; accounting invariants passed.
+- Quality assessment found 1,145 observed dates, 1,128 complete regular sessions, 14 partial sessions, 3 non-regular sessions, 16 internal gaps, and no duplicate keys, invalid OHLCV, non-finite, or out-of-order rows. Readiness is only potentially suitable for initial walk-forward experiments, not evidence of predictability or profitability.
+- Aggregate chunk-audit analysis found nine responses with exactly 1,500 rows, while 29 exceeded 1,500 and the maximum was 1,725; none of the 16 internal gaps aligned with chunk boundaries, so no evidence supports a 1,500-row response ceiling and no corrective provider run was made.
+- All 85,446 genuine historical index volume values are zero. Raw values remain unchanged, but volume-derived features are unavailable for this dataset. The size/coverage readiness label does not imply feature readiness, predictability, or profitability; licensing, storage, and redistribution rights remain unresolved.
+- The optional expanded feature build failed closed with `outside-market-session` because of the non-regular observations. It wrote zero expanded feature rows, preserved the source-candle fingerprint, and was not retried. `SMARTAPI_ENABLED=false` was restored.
 
 ### 2026-08-13 — Phase 3 leakage-safe feature engineering completed
 

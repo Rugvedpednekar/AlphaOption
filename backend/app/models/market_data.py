@@ -132,3 +132,79 @@ class IngestionRun(Base):
     records_rejected: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     error_summary: Mapped[str | None] = mapped_column(Text)
     is_synthetic: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+
+class BackfillRun(Base):
+    __tablename__ = "backfill_runs"
+    __table_args__ = (
+        CheckConstraint("interval = 'FIVE_MINUTE'", name="ck_backfill_interval"),
+        CheckConstraint("status IN ('running','completed','failed')", name="ck_backfill_status"),
+        CheckConstraint("planned_chunks BETWEEN 1 AND 60", name="ck_backfill_planned_chunks"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    instrument_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("instruments.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    provider: Mapped[str] = mapped_column(String(40), nullable=False)
+    interval: Mapped[str] = mapped_column(String(20), nullable=False)
+    requested_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    requested_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    actual_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    planned_chunks: Mapped[int] = mapped_column(Integer, nullable=False)
+    successful_chunks: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    empty_chunks: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    skipped_chunks: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    failed_chunks: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    records_received: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    records_inserted: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    records_duplicates: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    records_rejected: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="running")
+    error_category: Mapped[str | None] = mapped_column(Text)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class BackfillChunk(Base):
+    __tablename__ = "backfill_chunks"
+    __table_args__ = (
+        UniqueConstraint(
+            "instrument_id",
+            "interval",
+            "chunk_start",
+            "chunk_end",
+            "source_classification",
+            name="uq_backfill_chunk_identity",
+        ),
+        CheckConstraint(
+            "status IN ('running','completed','empty','failed')", name="ck_backfill_chunk_status"
+        ),
+        CheckConstraint(
+            "source_classification IN ('genuine','synthetic')", name="ck_backfill_chunk_source"
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    backfill_run_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("backfill_runs.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    instrument_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("instruments.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    interval: Mapped[str] = mapped_column(String(20), nullable=False)
+    chunk_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    chunk_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    source_classification: Mapped[str] = mapped_column(String(12), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False)
+    records_received: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    records_inserted: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    records_duplicates: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    records_rejected: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    error_category: Mapped[str | None] = mapped_column(Text)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

@@ -7,8 +7,9 @@ from sqlalchemy import Integer, func, select
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.market_data.quality import dataset_quality
 from app.market_data.validation import TIMEFRAMES
-from app.models.market_data import IngestionRun, Instrument, MarketCandle
+from app.models.market_data import BackfillRun, IngestionRun, Instrument, MarketCandle
 
 router = APIRouter(prefix="/api/market-data", tags=["market-data"])
 Db = Annotated[Session, Depends(get_db)]
@@ -238,3 +239,56 @@ def ingestion_runs(
             for x in items
         ],
     }
+
+
+@router.get("/backfill-runs")
+def backfill_runs(
+    db: Db, offset: Annotated[int, Query(ge=0)] = 0, limit: Annotated[int, Query(ge=1, le=100)] = 20
+) -> dict[str, object]:
+    items = db.scalars(
+        select(BackfillRun).order_by(BackfillRun.started_at.desc()).offset(offset).limit(limit)
+    ).all()
+    return {
+        "offset": offset,
+        "limit": limit,
+        "items": [
+            {
+                "id": str(item.id),
+                "instrument_id": str(item.instrument_id),
+                "provider": item.provider,
+                "interval": item.interval,
+                "requested_start": _utc(item.requested_start),
+                "requested_end": _utc(item.requested_end),
+                "actual_start": _utc(item.actual_start),
+                "planned_chunks": item.planned_chunks,
+                "successful_chunks": item.successful_chunks,
+                "empty_chunks": item.empty_chunks,
+                "skipped_chunks": item.skipped_chunks,
+                "failed_chunks": item.failed_chunks,
+                "records_received": item.records_received,
+                "records_inserted": item.records_inserted,
+                "records_duplicates": item.records_duplicates,
+                "records_rejected": item.records_rejected,
+                "status": item.status,
+                "error_category": item.error_category,
+                "started_at": _utc(item.started_at),
+                "completed_at": _utc(item.completed_at),
+            }
+            for item in items
+        ],
+    }
+
+
+@router.get("/dataset-quality")
+def quality(
+    db: Db,
+    instrument_id: uuid.UUID,
+    session_offset: Annotated[int, Query(ge=0)] = 0,
+    session_limit: Annotated[int, Query(ge=1, le=100)] = 25,
+) -> dict[str, object]:
+    result = dataset_quality(db, instrument_id)
+    sessions = result.pop("sessions")
+    result["session_offset"] = session_offset
+    result["session_limit"] = session_limit
+    result["sessions"] = sessions[session_offset : session_offset + session_limit]
+    return result

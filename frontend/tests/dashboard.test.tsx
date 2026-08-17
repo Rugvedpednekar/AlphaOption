@@ -93,3 +93,37 @@ describe("Feature Status", () => {
     expect(screen.getByText(/up 1, down 2, neutral 31/)).toBeInTheDocument();
   });
 });
+
+describe("Dataset Quality", () => {
+  it("shows loading, empty, and error states", async () => {
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+    const loading = render(<Dashboard />);
+    fireEvent.click(screen.getByRole("button", { name: "Dataset Quality" }));
+    expect(screen.getByText("Loading dataset quality…")).toBeInTheDocument();
+    loading.unmount();
+
+    vi.stubGlobal("fetch", vi.fn((url: string) => Promise.resolve({ ok: true, json: async () => url.includes("coverage") ? { candle_count: 0, coverage: [] } : url.includes("backfill-runs") ? { items: [] } : { service_status: "healthy", application_version: "0.1.0", operating_mode: "paper", live_orders_enabled: false, database: { status: "healthy" }, timestamp_utc: "2026-08-13T00:00:00Z", market_timezone: "Asia/Kolkata" } })));
+    const empty = render(<Dashboard />);
+    fireEvent.click(screen.getByRole("button", { name: "Dataset Quality" }));
+    expect(await screen.findByText("No five-minute dataset is available for assessment.")).toBeInTheDocument();
+    empty.unmount();
+
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+    render(<Dashboard />);
+    fireEvent.click(screen.getByRole("button", { name: "Dataset Quality" }));
+    expect(await screen.findByText("Dataset quality is unavailable.")).toBeInTheDocument();
+  });
+
+  it("shows synthetic-only, monthly, readiness, and safety warnings", async () => {
+    const coverage = { candle_count: 75, coverage: [{ instrument_id: "fixture-id", timeframe: "5m" }] };
+    const backfills = { items: [{ id: "run", status: "completed", provider: "fixture", planned_chunks: 1, successful_chunks: 1, empty_chunks: 0, skipped_chunks: 0, failed_chunks: 0 }] };
+    const quality = { observed_start: "2026-08-13T03:45:00Z", observed_end: "2026-08-13T09:55:00Z", total_candles: 75, observed_trading_dates: 1, genuine_count: 0, synthetic_count: 75, internal_five_minute_gap_count: 0, complete_sessions: 1, partial_sessions: 0, non_regular_sessions: 0, ml_readiness: "insufficient", regular_session_assumption: "Asia/Kolkata regular session; not an official exchange calendar", monthly: [{ month: "2026-08", candles: 75, observed_sessions: 1, complete_sessions: 1, partial_sessions: 0 }] };
+    vi.stubGlobal("fetch", vi.fn((url: string) => Promise.resolve({ ok: true, json: async () => url.includes("backfill-runs") ? backfills : url.includes("dataset-quality") ? quality : url.includes("coverage") ? coverage : { service_status: "healthy", application_version: "0.1.0", operating_mode: "paper", live_orders_enabled: false, database: { status: "healthy" }, timestamp_utc: "2026-08-13T00:00:00Z", market_timezone: "Asia/Kolkata" } })));
+    render(<Dashboard />);
+    fireEvent.click(screen.getByRole("button", { name: "Dataset Quality" }));
+    expect(await screen.findByText("SYNTHETIC-ONLY DATASET")).toBeInTheDocument();
+    expect(screen.getByText(/2026-08: 75 candles/)).toBeInTheDocument();
+    expect(screen.getByText(/does not prove predictability or profitability/)).toBeInTheDocument();
+    expect(screen.getByText(/does not establish storage, licensing, or redistribution rights/)).toBeInTheDocument();
+  });
+});
